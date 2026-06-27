@@ -1,6 +1,7 @@
 import express from "express";
 
 import { userRoute } from "./routes/user.route";
+import { errorMiddleWare } from "./middlewares/error.middleware";
 
 export const app = express();
 
@@ -15,3 +16,5 @@ app.get("/", (req, res) => {
 app.get("/health", (req, res) => {
   res.send(`hello, this is response from ${req.url}`);
 });
+
+app.use(errorMiddleWare);

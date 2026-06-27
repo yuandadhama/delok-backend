@@ -1,24 +1,29 @@
 import express from "express";
-import { getUserByIdController } from "../controllers/user.controller";
+import {
+  createUserController,
+  deleteUserController,
+  getAllUserController,
+  getUserByIdController,
+  searchUserByNameController,
+} from "../controllers/user.controller";
+import { asyncHandler } from "../utils/async-handler";
+
 export const userRoute = express.Router();
 
 userRoute.use((req, res, next) => {
   console.info(`[${req.method}] ${req.originalUrl}`);
-  console.info("route specifik");
   next();
 });
 
-userRoute.get("/:id", (req, res) => {
-  const response = getUserByIdController(req);
-  res.send(response);
-});
+// async handler to handle try/catch in every route controller
 
-userRoute.get("/", (req, res) => {
-  const { name } = req.query;
-  res.send(`this is user yoou search name: ${name}`);
-});
+// user/search?name=<name>
+userRoute.get("/search", asyncHandler(searchUserByNameController));
 
-userRoute.post("/", (req, res) => {
-  const { name, age } = req.body;
-  res.send(`here is your new user: ${name} age of ${age}`);
-});
+// /user/:id
+userRoute.get("/:id", asyncHandler(getUserByIdController));
+userRoute.delete("/:id", asyncHandler(deleteUserController));
+
+// /user
+userRoute.get("/", asyncHandler(getAllUserController));
+userRoute.post("/", asyncHandler(createUserController));
