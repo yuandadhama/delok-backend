@@ -5,9 +5,13 @@ import {
   getAllUserService,
   getUserByIdService,
   searchUserByNameService,
-} from "../services/user.service";
+  updateUserService,
+} from "./user.service";
 
-// to get all user
+/**
+ * GET /api/user
+ * Get all users
+ */
 export const getAllUserController = async (req: Request, res: Response) => {
   const data = await getAllUserService();
   res.json({
@@ -16,7 +20,10 @@ export const getAllUserController = async (req: Request, res: Response) => {
   });
 };
 
-// to search user by the name query search
+/**
+ * GET /api/user/search?name=<keyword>
+ * Search users by name
+ */
 export const searchUserByNameController = async (
   req: Request,
   res: Response,
@@ -29,22 +36,26 @@ export const searchUserByNameController = async (
   });
 };
 
-// to get a user by id
+/**
+ * GET /api/user/:id
+ * Get single user by id
+ */
 export const getUserByIdController = async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const data = await getUserByIdService(id as string);
+  const id = String(req.params.id);
+  const data = await getUserByIdService(id);
   res.json({
     success: true,
     data,
   });
 };
 
-// to create user
+/**
+ * POST /api/user
+ * Create new user
+ */
 export const createUserController = async (req: Request, res: Response) => {
   const { name, email } = req.body;
-  const id = crypto.randomUUID();
   const user = {
-    id,
     name,
     email,
   };
@@ -55,9 +66,31 @@ export const createUserController = async (req: Request, res: Response) => {
   });
 };
 
+/**
+ * PUT /api/user/:id
+ * Update existing user
+ */
+export const updateUserController = async (req: Request, res: Response) => {
+  const id = String(req.params.id);
+  const { name, email } = req.body;
+  const user = {
+    name,
+    email,
+  };
+  const data = await updateUserService(id, user);
+  res.json({
+    success: true,
+    data,
+  });
+};
+
+/**
+ * DELETE /api/user/:id
+ * Delete user by id
+ */
 export const deleteUserController = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const data = await deleteUserService(id as string);
+  const id = String(req.params.id);
+  const data = await deleteUserService(id);
   res.json({
     success: true,
     data,

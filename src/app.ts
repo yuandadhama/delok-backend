@@ -1,13 +1,13 @@
 import express from "express";
 
-import { userRoute } from "./routes/user.route";
+import { userRoute } from "./modules/user.route";
 import { errorMiddleWare } from "./middlewares/error.middleware";
 
 export const app = express();
 
 app.use(express.json());
 
-app.use("/user", userRoute);
+app.use("/api/user", userRoute);
 
 app.get("/", (req, res) => {
   res.send("hello ");

@@ -5,11 +5,15 @@ import {
   getAllUserController,
   getUserByIdController,
   searchUserByNameController,
-} from "../controllers/user.controller";
+  updateUserController,
+} from "./user.controller";
 import { asyncHandler } from "../utils/async-handler";
 
 export const userRoute = express.Router();
 
+/**
+ * Route level logger
+ */
 userRoute.use((req, res, next) => {
   console.info(`[${req.method}] ${req.originalUrl}`);
   next();
@@ -17,13 +21,38 @@ userRoute.use((req, res, next) => {
 
 // async handler to handle try/catch in every route controller
 
-// user/search?name=<name>
+/**
+ * GET /api/user/search?name=<keyword>
+ * Search users by name
+ */
 userRoute.get("/search", asyncHandler(searchUserByNameController));
 
-// /user/:id
+/**
+ * GET /api/user/:id
+ * Get single user
+ */
 userRoute.get("/:id", asyncHandler(getUserByIdController));
+
+/**
+ * PUT /api/user/:id
+ * Update existing user
+ */
+userRoute.put("/:id", asyncHandler(updateUserController));
+
+/**
+ * DELETE /api/user/:id
+ * Delete user
+ */
 userRoute.delete("/:id", asyncHandler(deleteUserController));
 
-// /user
+/**
+ * GET /api/user
+ * Get all users
+ */
 userRoute.get("/", asyncHandler(getAllUserController));
+
+/**
+ * POST /api/user
+ * Create new user
+ */
 userRoute.post("/", asyncHandler(createUserController));
