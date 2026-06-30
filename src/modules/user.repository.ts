@@ -1,6 +1,6 @@
 import { User } from "@prisma/client";
 import { prisma } from "../lib/prisma";
-import { UserType } from "./user.type";
+import { UserType } from "./user.validation";
 
 /**
  * Get all users from database

@@ -8,6 +8,8 @@ import {
   updateUserController,
 } from "./user.controller";
 import { asyncHandler } from "../utils/async-handler";
+import { createUserSchema, updateUserSchema } from "./user.validation";
+import { validate } from "../middlewares/validate.middleware";
 
 export const userRoute = express.Router();
 
@@ -19,7 +21,8 @@ userRoute.use((req, res, next) => {
   next();
 });
 
-// async handler to handle try/catch in every route controller
+// validate() to add validation middleware
+// asyncHandler() to handle try/catch in every route controller
 
 /**
  * GET /api/user/search?name=<keyword>
@@ -37,7 +40,11 @@ userRoute.get("/:id", asyncHandler(getUserByIdController));
  * PUT /api/user/:id
  * Update existing user
  */
-userRoute.put("/:id", asyncHandler(updateUserController));
+userRoute.put(
+  "/:id",
+  validate(updateUserSchema),
+  asyncHandler(updateUserController),
+);
 
 /**
  * DELETE /api/user/:id
@@ -55,4 +62,8 @@ userRoute.get("/", asyncHandler(getAllUserController));
  * POST /api/user
  * Create new user
  */
-userRoute.post("/", asyncHandler(createUserController));
+userRoute.post(
+  "/",
+  validate(createUserSchema),
+  asyncHandler(createUserController),
+);

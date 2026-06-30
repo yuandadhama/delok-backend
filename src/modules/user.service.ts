@@ -7,8 +7,8 @@ import {
   updateUser,
 } from "./user.repository";
 
-import { UserType } from "./user.type";
 import { AppError } from "../utils/AppError";
+import { UserType } from "./user.validation";
 
 /**
  * Get single user by id
@@ -42,14 +42,6 @@ export const searchUserByNameService = async (name: string) => {
 export const createUserService = async (user: UserType) => {
   const { name, email } = user;
 
-  if (!name) {
-    throw new AppError("field name is required", 400);
-  }
-
-  if (!email) {
-    throw new AppError("field email is required", 400);
-  }
-
   const createdUser = await createUser(name, email);
   return createdUser;
 };
@@ -58,15 +50,6 @@ export const createUserService = async (user: UserType) => {
  * Update existing user
  */
 export const updateUserService = async (id: string, user: UserType) => {
-  const { name, email } = user;
-  if (!name) {
-    throw new AppError("field name is required", 400);
-  }
-
-  if (!email) {
-    throw new AppError("field email required", 400);
-  }
-
   // Check user existence before update
   const existingUser = await findById(id);
 
