@@ -6,7 +6,7 @@ import {
   getUserByIdService,
   searchUserByNameService,
   updateUserService,
-} from "./user.service";
+} from "../user/user.service";
 
 /**
  * GET /api/user

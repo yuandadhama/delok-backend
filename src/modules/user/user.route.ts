@@ -7,9 +7,10 @@ import {
   searchUserByNameController,
   updateUserController,
 } from "./user.controller";
-import { asyncHandler } from "../utils/async-handler";
+
 import { createUserSchema, updateUserSchema } from "./user.validation";
-import { validate } from "../middlewares/validate.middleware";
+import { asyncHandler } from "../../utils/async-handler";
+import { validate } from "../../middlewares/validate.middleware";
 
 export const userRoute = express.Router();
 

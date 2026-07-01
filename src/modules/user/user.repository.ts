@@ -1,5 +1,5 @@
 import { User } from "@prisma/client";
-import { prisma } from "../lib/prisma";
+import { prisma } from "../../lib/prisma";
 import { UserType } from "./user.validation";
 
 /**

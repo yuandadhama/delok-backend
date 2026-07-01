@@ -7,7 +7,7 @@ import {
   updateUser,
 } from "./user.repository";
 
-import { AppError } from "../utils/AppError";
+import { AppError } from "../../utils/AppError";
 import { UserType } from "./user.validation";
 
 /**

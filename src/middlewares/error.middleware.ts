@@ -2,9 +2,18 @@
 
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../utils/AppError";
+import { Prisma } from "../generated/prisma/client";
 
 // util to get error message and code
 const getErrorInfo = (error: unknown) => {
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === "P2002") {
+      return {
+        code: 409,
+        message: "email already exists",
+      };
+    }
+  }
   if (error instanceof AppError) {
     return {
       code: error.code,
