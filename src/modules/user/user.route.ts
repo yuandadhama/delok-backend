@@ -1,9 +1,12 @@
+// /modules/user/user.route.ts
+
 import express from "express";
 import {
   createUserController,
   deleteUserController,
   getAllUserController,
   getUserByIdController,
+  meController,
   searchUserByNameController,
   updateUserController,
 } from "./user.controller";
@@ -11,6 +14,7 @@ import {
 import { createUserSchema, updateUserSchema } from "./user.validation";
 import { asyncHandler } from "../../utils/async-handler";
 import { validate } from "../../middlewares/validate.middleware";
+import { authMiddleware } from "../../middlewares/auth.middleware";
 
 export const userRoute = express.Router();
 
@@ -24,6 +28,12 @@ userRoute.use((req, res, next) => {
 
 // validate() to add validation middleware
 // asyncHandler() to handle try/catch in every route controller
+
+/**
+ * GET /api/user/me
+ * Get current user session
+ */
+userRoute.get("/me", authMiddleware, asyncHandler(meController));
 
 /**
  * GET /api/user/search?name=<keyword>

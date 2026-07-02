@@ -1,3 +1,5 @@
+// /modules/user/user.controller.ts
+
 import { Request, Response } from "express";
 import {
   createUserService,
@@ -7,6 +9,22 @@ import {
   searchUserByNameService,
   updateUserService,
 } from "../user/user.service";
+import { auth } from "../../lib/auth";
+import { fromNodeHeaders } from "better-auth/node";
+
+/**
+ * GET /api/user/me
+ * Get current user session
+ */
+export const meController = async (req: Request, res: Response) => {
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers),
+  });
+  res.json({
+    success: true,
+    data: session,
+  });
+};
 
 /**
  * GET /api/user
