@@ -19,10 +19,19 @@ app.use(
   }),
 );
 
+app.use(express.json());
+
+/**
+ * Route level logger
+ */
+app.use((req, res, next) => {
+  console.info(`[${req.method}] ${req.originalUrl}`);
+  console.log(`req.body: ${JSON.stringify(req.body)}`);
+  next();
+});
+
 // auth route better auth setting
 app.all("/api/auth/*splat", toNodeHandler(auth));
-
-app.use(express.json());
 
 app.use("/api/user", userRoute);
 

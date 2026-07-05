@@ -18,14 +18,6 @@ import { authMiddleware } from "../../middlewares/auth.middleware";
 
 export const userRoute = express.Router();
 
-/**
- * Route level logger
- */
-userRoute.use((req, res, next) => {
-  console.info(`[${req.method}] ${req.originalUrl}`);
-  next();
-});
-
 // validate() to add validation middleware
 // asyncHandler() to handle try/catch in every route controller
 
