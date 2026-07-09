@@ -6,6 +6,7 @@ import { userRoute } from "./modules/user/user.route";
 import { errorMiddleWare } from "./middlewares/error.middleware";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
+import { organizationRoute } from "./modules/organization/organization.route";
 
 export const app = express();
 
@@ -35,12 +36,10 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 
 app.use("/api/user", userRoute);
 
+app.use("/api/organization", organizationRoute);
+
 app.get("/", (req, res) => {
   res.send("hello ");
-});
-
-app.get("/health", (req, res) => {
-  res.send(`hello, this is response from ${req.url}`);
 });
 
 app.use(errorMiddleWare);

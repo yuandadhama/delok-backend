@@ -1,0 +1,24 @@
+// /prisma/schema/organization.prisma
+model Organization {
+  id   String @id @default(cuid())
+  name String
+
+  projects Project[]
+  organizationMembers OrganizationMember[]
+}
+
+model OrganizationMember {
+  organizationId String
+  userId String
+
+  role String
+
+  joinedAt DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  
+  user User @relation(fields: [userId], references: [id])
+
+  @@id([organizationId, userId])
+}
+
