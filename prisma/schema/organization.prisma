@@ -5,6 +5,8 @@ model Organization {
 
   projects Project[]
   organizationMembers OrganizationMember[]
+
+  @@map("organization")
 }
 
 model OrganizationMember {
@@ -19,6 +21,7 @@ model OrganizationMember {
   
   user User @relation(fields: [userId], references: [id])
 
+  @@map("organization_member")
   @@id([organizationId, userId])
 }
 

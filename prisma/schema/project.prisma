@@ -7,7 +7,10 @@ model Project {
   organizationId String
   organization Organization @relation(fields: [organizationId], references: [id])
 
+
   apiKeys ApiKey[]
+
+  @@map("project")
 }
 
 model ApiKey {
@@ -18,4 +21,5 @@ model ApiKey {
   projectId String
   project Project @relation(fields: [projectId], references: [id])
 
+  @@map("api_key")
 }

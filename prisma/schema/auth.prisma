@@ -10,8 +10,8 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  @@map("user")
   organizationMembers OrganizationMember[]
+  @@map("user")
 }
 
 model Session {
