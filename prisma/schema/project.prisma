@@ -5,7 +5,7 @@ model Project {
   name String
 
   organizationId String
-  organization Organization @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
 
   apiKeys ApiKey[]
@@ -19,7 +19,7 @@ model ApiKey {
   key String @unique
 
   projectId String
-  project Project @relation(fields: [projectId], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("api_key")
 }

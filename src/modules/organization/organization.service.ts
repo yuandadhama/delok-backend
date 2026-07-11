@@ -1,7 +1,10 @@
 // /src/modules/organization/organization.service.ts
 
 import { AppError } from "../../utils/AppError";
-import { createOrganization } from "./organization.repository";
+import {
+  createOrganization,
+  findAllOrganization,
+} from "./organization.repository";
 
 export const createOrganizationService = async (
   name: string,
@@ -12,4 +15,8 @@ export const createOrganizationService = async (
   }
 
   return await createOrganization(name, userId);
+};
+
+export const getAllOrganizationService = async (userId: string) => {
+  return await findAllOrganization(userId);
 };

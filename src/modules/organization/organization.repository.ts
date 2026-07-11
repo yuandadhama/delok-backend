@@ -14,3 +14,16 @@ export const createOrganization = async (name: string, userId: string) => {
     },
   });
 };
+
+export const findAllOrganization = async (userId: string) => {
+  return prisma.organization.findMany({
+    where: {
+      organizationMembers: {
+        every: {
+          userId,
+          role: "owner",
+        },
+      },
+    },
+  });
+};
