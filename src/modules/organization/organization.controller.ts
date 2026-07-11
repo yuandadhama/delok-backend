@@ -1,7 +1,10 @@
 // /src/modules/organization/organization.controller.ts
 
 import { Request, Response } from "express";
-import { createOrganizationService } from "./organization.service";
+import {
+  createOrganizationService,
+  getAllOrganizationService,
+} from "./organization.service";
 
 export const createOrganizationController = async (
   req: Request,
@@ -10,6 +13,18 @@ export const createOrganizationController = async (
   const name = String(req.body.name);
   const userId = req.session.user.id;
   const data = await createOrganizationService(name, userId);
+  res.json({
+    success: true,
+    data,
+  });
+};
+
+export const getAllOrganizationController = async (
+  req: Request,
+  res: Response,
+) => {
+  const userId = req.session.user.id;
+  const data = await getAllOrganizationService(userId);
   res.json({
     success: true,
     data,
