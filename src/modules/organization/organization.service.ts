@@ -11,5 +11,5 @@ export const createOrganizationService = async (
     throw new AppError("name too short", 400);
   }
 
-  await createOrganization(name, userId);
+  return await createOrganization(name, userId);
 };

@@ -9,7 +9,6 @@ export const createOrganizationController = async (
 ) => {
   const name = String(req.body.name);
   const userId = req.session.user.id;
-  console.log("ini user id " + userId);
   const data = await createOrganizationService(name, userId);
   res.json({
     success: true,
