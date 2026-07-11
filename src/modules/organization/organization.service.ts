@@ -1,5 +1,15 @@
+// /src/modules/organization/organization.service.ts
+
+import { AppError } from "../../utils/AppError";
 import { createOrganization } from "./organization.repository";
 
-export const createOrganizationService = async (name: string) => {
-  await createOrganization(name);
+export const createOrganizationService = async (
+  name: string,
+  userId: string,
+) => {
+  if (name.length < 3) {
+    throw new AppError("name too short", 400);
+  }
+
+  await createOrganization(name, userId);
 };

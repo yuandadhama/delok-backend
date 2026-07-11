@@ -10,15 +10,18 @@ export const authMiddleware = async (
   res: Response,
   next: NextFunction,
 ) => {
+  console.log("AUTH MIDDLEWARE");
   const session = await auth.api.getSession({
     headers: fromNodeHeaders(req.headers),
   });
+
+  console.log("CHECK SESSION");
 
   if (!session) {
     throw new AppError("unauthorized", 401);
   }
 
   req.session = session;
-
+  console.log("AUTH MIDDLEWARE SUCCESS");
   next();
 };
