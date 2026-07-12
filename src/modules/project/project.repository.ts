@@ -1,11 +1,14 @@
 import { prisma } from "../../lib/prisma";
 
+/**
+ * Create project and generate its first API key.
+ */
 export const createProject = async (
   name: string,
   organizationId: string,
   apiKey: string,
 ) => {
-  await prisma.project.create({
+  return await prisma.project.create({
     data: {
       name,
       organizationId,
@@ -18,8 +21,11 @@ export const createProject = async (
   });
 };
 
+/**
+ * Find all projects by organization id.
+ */
 export const findAllProjects = async (organizationId: string) => {
-  await prisma.project.findMany({
+  return await prisma.project.findMany({
     where: {
       organizationId,
     },

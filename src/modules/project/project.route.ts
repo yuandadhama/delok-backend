@@ -1,4 +1,4 @@
-import expresss from "express";
+import express from "express";
 import { authMiddleware } from "../../middlewares/auth.middleware";
 import { asyncHandler } from "../../utils/async-handler";
 import {
@@ -6,16 +6,24 @@ import {
   getAllProjectsController,
 } from "./project.controller";
 
-export const projectRoute = expresss.Router();
-
-projectRoute.post("/", authMiddleware, asyncHandler(createProjectController));
+export const projectRoute = express.Router();
 
 /**
- * GET /api/projects
- * Get all organizations
+ * GET /api/project/organization/:organizationId
+ * Get all projects inside an organization.
+ *
+ * User must be a member of the organization.
  */
 projectRoute.get(
-  "/:organizationId",
+  "/organization/:organizationId",
   authMiddleware,
   asyncHandler(getAllProjectsController),
 );
+
+/**
+ * POST /api/project
+ * Create a new project.
+ *
+ * User must be a member of the organization.
+ */
+projectRoute.post("/", authMiddleware, asyncHandler(createProjectController));

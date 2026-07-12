@@ -42,7 +42,7 @@ app.use("/api/organization", organizationRoute);
 app.use("/api/project", projectRoute);
 
 app.get("/", (req, res) => {
-  res.send("hello ");
+  res.send("hello");
 });
 
 app.use(errorMiddleWare);
