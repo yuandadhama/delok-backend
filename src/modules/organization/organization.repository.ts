@@ -27,3 +27,12 @@ export const findAllOrganization = async (userId: string) => {
     },
   });
 };
+
+export const findOrganizationById = async (id: string) => {
+  console.log("finding organization by id");
+  return prisma.organization.findUnique({
+    where: {
+      id,
+    },
+  });
+};

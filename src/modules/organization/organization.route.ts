@@ -5,6 +5,7 @@ import { asyncHandler } from "../../utils/async-handler";
 import {
   createOrganizationController,
   getAllOrganizationController,
+  getOrganizationByIdController,
 } from "./organization.controller";
 import { authMiddleware } from "../../middlewares/auth.middleware";
 
@@ -15,6 +16,8 @@ organizationRoute.post(
   authMiddleware,
   asyncHandler(createOrganizationController),
 );
+
+organizationRoute.get("/:id", asyncHandler(getOrganizationByIdController));
 
 organizationRoute.get(
   "/",
