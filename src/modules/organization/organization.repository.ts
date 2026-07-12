@@ -1,7 +1,9 @@
-// /src/modules/organization/organization.repository.ts
-
 import { prisma } from "../../lib/prisma";
 
+/**
+ * Create new organization and automatically
+ * add creator as organization owner.
+ */
 export const createOrganization = async (name: string, userId: string) => {
   return prisma.organization.create({
     data: {
@@ -15,11 +17,14 @@ export const createOrganization = async (name: string, userId: string) => {
   });
 };
 
+/**
+ * Get all organizations owned by user.
+ */
 export const findAllOrganization = async (userId: string) => {
   return prisma.organization.findMany({
     where: {
       organizationMembers: {
-        every: {
+        some: {
           userId,
           role: "owner",
         },
@@ -28,11 +33,20 @@ export const findAllOrganization = async (userId: string) => {
   });
 };
 
-export const findOrganizationById = async (id: string) => {
-  console.log("finding organization by id");
-  return prisma.organization.findUnique({
+/**
+ * Find organization by id.
+ *
+ * User must be a member of the organization.
+ */
+export const findOrganizationById = async (id: string, userId: string) => {
+  return prisma.organization.findFirst({
     where: {
       id,
+      organizationMembers: {
+        some: {
+          userId,
+        },
+      },
     },
   });
 };

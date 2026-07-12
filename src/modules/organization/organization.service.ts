@@ -1,12 +1,14 @@
-// /src/modules/organization/organization.service.ts
-
 import { AppError } from "../../utils/AppError";
+
 import {
   createOrganization,
   findAllOrganization,
   findOrganizationById,
 } from "./organization.repository";
 
+/**
+ * Create new organization.
+ */
 export const createOrganizationService = async (
   name: string,
   userId: string,
@@ -15,13 +17,28 @@ export const createOrganizationService = async (
     throw new AppError("name too short", 400);
   }
 
-  return await createOrganization(name, userId);
+  return createOrganization(name, userId);
 };
 
+/**
+ * Get all organizations for current user.
+ */
 export const getAllOrganizationService = async (userId: string) => {
-  return await findAllOrganization(userId);
+  return findAllOrganization(userId);
 };
 
-export const getOrganizationByIdService = async (id: string) => {
-  return await findOrganizationById(id);
+/**
+ * Get organization by id.
+ */
+export const getOrganizationByIdService = async (
+  id: string,
+  userId: string,
+) => {
+  const organization = await findOrganizationById(id, userId);
+
+  if (!organization) {
+    throw new AppError("organization not found", 404);
+  }
+
+  return organization;
 };
