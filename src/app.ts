@@ -7,6 +7,7 @@ import { errorMiddleWare } from "./middlewares/error.middleware";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { organizationRoute } from "./modules/organization/organization.route";
+import { projectRoute } from "./modules/project/project.route";
 
 export const app = express();
 
@@ -37,6 +38,8 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use("/api/user", userRoute);
 
 app.use("/api/organization", organizationRoute);
+
+app.use("/api/project", projectRoute);
 
 app.get("/", (req, res) => {
   res.send("hello ");

@@ -1,4 +1,5 @@
 import { AppError } from "../../utils/AppError";
+import { ensureOrganizationMember } from "./organization.authorization";
 
 import {
   createOrganization,
@@ -29,15 +30,20 @@ export const getAllOrganizationService = async (userId: string) => {
 
 /**
  * Get organization by id.
+ *
+ *
+ * User must be a member of organization
  */
 export const getOrganizationByIdService = async (
   id: string,
   userId: string,
 ) => {
-  const organization = await findOrganizationById(id, userId);
+  await ensureOrganizationMember(id, userId);
+
+  const organization = await findOrganizationById(id);
 
   if (!organization) {
-    throw new AppError("organization not found", 404);
+    throw new AppError("Organization not found", 404);
   }
 
   return organization;

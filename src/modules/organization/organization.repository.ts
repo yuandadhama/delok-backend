@@ -18,7 +18,7 @@ export const createOrganization = async (name: string, userId: string) => {
 };
 
 /**
- * Get all organizations owned by user.
+ * Get all organizations belong to user.
  */
 export const findAllOrganization = async (userId: string) => {
   return prisma.organization.findMany({
@@ -26,7 +26,6 @@ export const findAllOrganization = async (userId: string) => {
       organizationMembers: {
         some: {
           userId,
-          role: "owner",
         },
       },
     },
@@ -35,18 +34,11 @@ export const findAllOrganization = async (userId: string) => {
 
 /**
  * Find organization by id.
- *
- * User must be a member of the organization.
  */
-export const findOrganizationById = async (id: string, userId: string) => {
-  return prisma.organization.findFirst({
+export const findOrganizationById = async (id: string) => {
+  return prisma.organization.findUnique({
     where: {
       id,
-      organizationMembers: {
-        some: {
-          userId,
-        },
-      },
     },
   });
 };
