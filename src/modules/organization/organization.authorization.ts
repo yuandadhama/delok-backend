@@ -1,31 +1,30 @@
 // /src/modules/organization/organization.authorization.ts
 
 import { prisma } from "../../lib/prisma";
+
 import { AppError } from "../../utils/AppError";
+import {
+  findOrganizationByIdForMember,
+  findOrganizationOwner,
+} from "./organization.repository";
 
 /**
- * Ensure current user is a member of organization
- *
- * Throws:
- * 403 Forbidden
- * if user is not a member
+ * Ensure current user is a member of organization.
  */
 export const ensureOrganizationMember = async (
   organizationId: string,
   userId: string,
 ) => {
-  const member = await prisma.organizationMember.findFirst({
-    where: {
-      organizationId,
-      userId,
-    },
-  });
+  const organization = await findOrganizationByIdForMember(
+    organizationId,
+    userId,
+  );
 
-  if (!member) {
-    throw new AppError("Organization access denied", 403);
+  if (!organization) {
+    throw new AppError("Forbidden", 403);
   }
 
-  return member;
+  return organization;
 };
 
 /**
@@ -39,13 +38,7 @@ export const ensureOrganizationOwner = async (
   organizationId: string,
   userId: string,
 ) => {
-  const member = await prisma.organizationMember.findFirst({
-    where: {
-      organizationId,
-      userId,
-      role: "owner",
-    },
-  });
+  const member = await findOrganizationOwner(organizationId, userId);
 
   if (!member) {
     throw new AppError("owner access required", 403);

@@ -4,9 +4,23 @@ import { asyncHandler } from "../../utils/async-handler";
 import {
   createProjectController,
   getAllProjectsController,
+  getProjectByIdController,
 } from "./project.controller";
 
 export const projectRoute = express.Router();
+
+/**
+ * GET /api/project/:projectId
+ *
+ * Get detailed project information.
+ *
+ * User must be a member of the project organization.
+ */
+projectRoute.get(
+  "/:projectId",
+  authMiddleware,
+  asyncHandler(getProjectByIdController),
+);
 
 /**
  * GET /api/project/organization/:organizationId

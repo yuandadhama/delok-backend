@@ -38,13 +38,5 @@ export const getOrganizationByIdService = async (
   id: string,
   userId: string,
 ) => {
-  await ensureOrganizationMember(id, userId);
-
-  const organization = await findOrganizationById(id);
-
-  if (!organization) {
-    throw new AppError("Organization not found", 404);
-  }
-
-  return organization;
+  return ensureOrganizationMember(id, userId);
 };

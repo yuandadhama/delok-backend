@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import { ensureOrganizationMember } from "../organization/organization.authorization";
 import { createProject, findAllProjects } from "./project.repository";
 import { AppError } from "../../utils/AppError";
+import { ensureProjectMember } from "./project.authorization";
 
 /**
  * Create new project inside organization.
@@ -34,4 +35,16 @@ export const getAllProjectsService = async (
 ) => {
   await ensureOrganizationMember(organizationId, userId);
   return await findAllProjects(organizationId);
+};
+
+/**
+ * Get project detail.
+ *
+ * User must be a member of project organization.
+ */
+export const getProjectByIdService = async (
+  userId: string,
+  projectId: string,
+) => {
+  return ensureProjectMember(projectId, userId);
 };

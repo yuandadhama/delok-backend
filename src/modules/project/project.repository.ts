@@ -31,3 +31,34 @@ export const findAllProjects = async (organizationId: string) => {
     },
   });
 };
+
+/**
+ * Find project by id.
+ *
+ * Returns project only when user belongs
+ * to the related organization.
+ */
+export const findProjectByIdForMember = async (
+  projectId: string,
+  userId: string,
+) => {
+  return prisma.project.findFirst({
+    where: {
+      id: projectId,
+      organization: {
+        organizationMembers: {
+          some: {
+            userId,
+          },
+        },
+      },
+    },
+    include: {
+      apiKeys: {
+        select: {
+          key: true,
+        },
+      },
+    },
+  });
+};

@@ -42,3 +42,38 @@ export const findOrganizationById = async (id: string) => {
     },
   });
 };
+
+/**
+ * Find organization by id and ensure user is a member.
+ */
+export const findOrganizationByIdForMember = async (
+  organizationId: string,
+  userId: string,
+) => {
+  return prisma.organization.findFirst({
+    where: {
+      id: organizationId,
+      organizationMembers: {
+        some: {
+          userId,
+        },
+      },
+    },
+  });
+};
+
+/**
+ * Find organization owner membership.
+ */
+export const findOrganizationOwner = async (
+  organizationId: string,
+  userId: string,
+) => {
+  return prisma.organizationMember.findFirst({
+    where: {
+      organizationId,
+      userId,
+      role: "owner",
+    },
+  });
+};
