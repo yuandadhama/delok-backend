@@ -1,22 +1,24 @@
 model LogEvent {
-  id          String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id])
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
 
   environment String
   level       String
   event       String
 
-  message     String?
+  message String?
 
-  timestamp   DateTime @default(now())
+  occurredAt DateTime
+  receivedAt DateTime @default(now())
 
-  payload     Json?
+  payload Json?
 
   @@index([projectId])
-  @@index([timestamp])
-  @@index([projectId, timestamp])
+  @@index([occurredAt])
+  @@index([projectId, occurredAt])
+  @@index([projectId, level])
 
-  @@map("log")
+  @@map("log_event")
 }
