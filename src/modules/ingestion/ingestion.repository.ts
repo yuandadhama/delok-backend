@@ -1,4 +1,4 @@
-import { InputJsonObject } from "@prisma/client/runtime/client";
+import { JsonObject } from "@prisma/client/runtime/client";
 import { prisma } from "../../lib/prisma";
 
 export const createLogEvent = async (
@@ -6,15 +6,25 @@ export const createLogEvent = async (
   environment: string,
   level: string,
   event: string,
-  payload?: InputJsonObject,
+  occurredAt: Date,
+  payload?: JsonObject,
 ) => {
-  return await prisma.logEvent.create({
+  return prisma.logEvent.create({
     data: {
       projectId,
       environment,
       level,
       event,
+      occurredAt,
       payload,
+    },
+  });
+};
+
+export const findApiKeybyKey = async (key: string) => {
+  return prisma.apiKey.findFirst({
+    where: {
+      key,
     },
   });
 };

@@ -8,6 +8,7 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { organizationRoute } from "./modules/organization/organization.route";
 import { projectRoute } from "./modules/project/project.route";
+import { ingestionRoute } from "./modules/ingestion/ingestion.route";
 
 export const app = express();
 
@@ -35,11 +36,14 @@ app.use((req, res, next) => {
 // auth route better auth setting
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
+// route for all modules
 app.use("/api/user", userRoute);
 
 app.use("/api/organization", organizationRoute);
 
 app.use("/api/project", projectRoute);
+
+app.use("/api/ingestion", ingestionRoute);
 
 app.get("/", (req, res) => {
   res.send("hello");
