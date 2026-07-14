@@ -11,6 +11,8 @@ model Project {
   apiKeys ApiKey[]
 
   @@map("project")
+
+  logEvents LogEvent[]
 }
 
 model ApiKey {
