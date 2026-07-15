@@ -7,6 +7,7 @@ export const createLogEvent = async (
   level: string,
   event: string,
   occurredAt: Date,
+  message?: string,
   payload?: JsonObject,
 ) => {
   return prisma.logEvent.create({
@@ -16,23 +17,16 @@ export const createLogEvent = async (
       level,
       event,
       occurredAt,
+      message,
       payload,
     },
   });
 };
 
-export const findApiKeybyKey = async (key: string) => {
+export const findApiKey = async (key: string) => {
   return prisma.apiKey.findFirst({
     where: {
       key,
-    },
-  });
-};
-
-export const findLogEventsByProjectId = async (projectId: string) => {
-  return prisma.logEvent.findMany({
-    where: {
-      projectId,
     },
   });
 };

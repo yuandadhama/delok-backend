@@ -9,6 +9,7 @@ import { auth } from "./lib/auth";
 import { organizationRoute } from "./modules/organization/organization.route";
 import { projectRoute } from "./modules/project/project.route";
 import { ingestionRoute } from "./modules/ingestion/ingestion.route";
+import { logEventRoute } from "./modules/log-event/log-event.route";
 
 export const app = express();
 
@@ -44,6 +45,8 @@ app.use("/api/organization", organizationRoute);
 app.use("/api/project", projectRoute);
 
 app.use("/api/ingestion", ingestionRoute);
+
+app.use("/api/logs", logEventRoute);
 
 app.get("/", (req, res) => {
   res.send("hello");

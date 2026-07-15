@@ -1,11 +1,13 @@
 import express from "express";
 import { asyncHandler } from "../../utils/async-handler";
-import {
-  createLogEventController,
-  getAllLogEventsByProjectIdController,
-} from "./ingestion.controller";
+import { createLogEventController } from "./ingestion.controller";
+import { validate } from "../../middlewares/validate.middleware";
+import { createLogEventSchema } from "./ingestion.validation";
 
 export const ingestionRoute = express.Router();
 
-ingestionRoute.post("/", asyncHandler(createLogEventController));
-ingestionRoute.get("/", getAllLogEventsByProjectIdController);
+ingestionRoute.post(
+  "/",
+  validate(createLogEventSchema),
+  asyncHandler(createLogEventController),
+);
