@@ -28,3 +28,11 @@ export const findApiKeybyKey = async (key: string) => {
     },
   });
 };
+
+export const findLogEventsByProjectId = async (projectId: string) => {
+  return prisma.logEvent.findMany({
+    where: {
+      projectId,
+    },
+  });
+};
