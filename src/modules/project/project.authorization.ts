@@ -1,3 +1,5 @@
+// /src/modules/project/project.authorization.ts
+
 import { AppError } from "../../utils/AppError";
 import { findProjectByIdForMember } from "./project.repository";
 

@@ -1,4 +1,5 @@
-// app.ts
+// /src/app.ts
+
 import express from "express";
 import cors from "cors";
 
@@ -18,7 +19,7 @@ app.use(
   cors({
     origin: ["http://localhost:3000"],
     methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
     credentials: true,
   }),
 );
@@ -48,6 +49,7 @@ app.use("/api/ingestion", ingestionRoute);
 
 app.use("/api/logs", logEventRoute);
 
+// route to test if server run already
 app.get("/", (req, res) => {
   res.send("hello");
 });

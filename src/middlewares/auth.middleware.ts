@@ -1,4 +1,4 @@
-// /middlewares/auth.middleware.ts
+// /src/middlewares/auth.middleware.ts
 
 import { NextFunction, Request, Response } from "express";
 import { auth } from "../lib/auth";

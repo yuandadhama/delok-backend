@@ -1,4 +1,4 @@
-// /lib/resend.ts
+// /src/lib/resend.ts
 
 import { Resend } from "resend";
 

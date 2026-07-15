@@ -1,4 +1,5 @@
-// utils/AppError.ts
+// /src/utils/AppError.ts
+
 export class AppError extends Error {
   constructor(
     message: string,

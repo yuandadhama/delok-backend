@@ -1,7 +1,14 @@
+// /src/modules/ingestion/ingestion.controller.ts
+
 import { Request, Response } from "express";
 import { AppError } from "../../utils/AppError";
 import { createLogEventService } from "./ingestion.service";
 
+/**
+ * POST /api/ingestion
+ *
+ * Create a new log event from SDK request.
+ */
 export const createLogEventController = async (req: Request, res: Response) => {
   const apiKey = req.get("x-api-key");
 

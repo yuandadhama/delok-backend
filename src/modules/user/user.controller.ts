@@ -1,4 +1,4 @@
-// /modules/user/user.controller.ts
+// /src/modules/user/user.controller.ts
 
 import { Request, Response } from "express";
 import {

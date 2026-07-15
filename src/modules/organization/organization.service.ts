@@ -1,3 +1,5 @@
+// /src/modules/organization/organization.service.ts
+
 import { AppError } from "../../utils/AppError";
 import { ensureOrganizationMember } from "./organization.authorization";
 

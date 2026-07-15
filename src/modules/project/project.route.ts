@@ -1,3 +1,5 @@
+// /src/modules/project/project.route.ts
+
 import express from "express";
 import { authMiddleware } from "../../middlewares/auth.middleware";
 import { asyncHandler } from "../../utils/async-handler";

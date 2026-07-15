@@ -1,3 +1,5 @@
+// /src/modules/project/project.service.ts
+
 import { randomBytes } from "crypto";
 import { ensureOrganizationMember } from "../organization/organization.authorization";
 import { createProject, findAllProjects } from "./project.repository";

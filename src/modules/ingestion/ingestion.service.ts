@@ -1,7 +1,15 @@
+// /src/modules/ingestion/ingestion.service.ts
+
 import { JsonObject } from "@prisma/client/runtime/client";
 import { AppError } from "../../utils/AppError";
-import { createLogEvent, findApiKey } from "./ingestion.repository";
+import { createLogEvent, findApiKeyByKey } from "./ingestion.repository";
 
+/**
+ * Create new log event.
+ *
+ * Authentication:
+ * API key must belong to an existing project.
+ */
 export const createLogEventService = async (
   key: string,
   environment: string,
@@ -11,7 +19,7 @@ export const createLogEventService = async (
   message?: string,
   payload?: JsonObject,
 ) => {
-  const apiKey = await findApiKey(key);
+  const apiKey = await findApiKeyByKey(key);
 
   if (!apiKey) {
     throw new AppError("Invalid API key", 401);

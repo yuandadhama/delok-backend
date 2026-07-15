@@ -1,4 +1,4 @@
-// /modules/user/user.route.ts
+// /src/modules/user/user.route.ts
 
 import express from "express";
 import {

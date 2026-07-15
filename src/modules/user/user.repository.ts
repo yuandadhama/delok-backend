@@ -1,3 +1,5 @@
+// /src/modules/user.repository.ts
+
 import { User } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 import { UserType } from "./user.validation";
