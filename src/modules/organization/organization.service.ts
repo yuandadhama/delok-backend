@@ -1,10 +1,15 @@
 // /src/modules/organization/organization.service.ts
 
+import id from "zod/v4/locales/id.cjs";
 import { AppError } from "../../utils/AppError";
-import { ensureOrganizationMember } from "./organization.authorization";
+import {
+  ensureOrganizationMember,
+  ensureOrganizationOwner,
+} from "./organization.authorization";
 
 import {
   createOrganization,
+  deleteOrganization,
   findAllOrganization,
   findOrganizationById,
 } from "./organization.repository";
@@ -41,4 +46,16 @@ export const getOrganizationByIdService = async (
   userId: string,
 ) => {
   return ensureOrganizationMember(id, userId);
+};
+
+/**
+ * delete organization by id.
+ *
+ *
+ * User must be a member of organization
+ */
+export const deleteOrganizationService = async (id: string, userId: string) => {
+  await ensureOrganizationOwner(id, userId);
+
+  return deleteOrganization(id);
 };

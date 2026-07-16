@@ -7,6 +7,7 @@ import { authMiddleware } from "../../middlewares/auth.middleware";
 
 import {
   createOrganizationController,
+  deleteOrganizationController,
   getAllOrganizationController,
   getOrganizationByIdController,
 } from "./organization.controller";
@@ -21,6 +22,16 @@ organizationRoute.get(
   "/:id",
   authMiddleware,
   asyncHandler(getOrganizationByIdController),
+);
+
+/**
+ * DELETE /api/organization/:id
+ * delete organization by id
+ */
+organizationRoute.delete(
+  "/:id",
+  authMiddleware,
+  asyncHandler(deleteOrganizationController),
 );
 
 /**

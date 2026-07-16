@@ -79,3 +79,14 @@ export const findOrganizationOwner = async (
     },
   });
 };
+
+/**
+ * Delete organization by the id
+ */
+export const deleteOrganization = async (id: string) => {
+  return prisma.organization.delete({
+    where: {
+      id,
+    },
+  });
+};

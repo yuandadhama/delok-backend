@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 
 import {
   createOrganizationService,
+  deleteOrganizationService,
   getAllOrganizationService,
   getOrganizationByIdService,
 } from "./organization.service";
@@ -57,6 +58,25 @@ export const getOrganizationByIdController = async (
   const userId = req.session.user.id;
 
   const data = await getOrganizationByIdService(id, userId);
+
+  res.json({
+    success: true,
+    data,
+  });
+};
+
+/**
+ * DELETE /api/organization/:id
+ * delete organization by id.
+ */
+export const deleteOrganizationController = async (
+  req: Request,
+  res: Response,
+) => {
+  const id = String(req.params.id);
+  const userId = req.session.user.id;
+
+  const data = await deleteOrganizationService(id, userId);
 
   res.json({
     success: true,
