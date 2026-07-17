@@ -5,6 +5,7 @@ import { authMiddleware } from "../../middlewares/auth.middleware";
 import { asyncHandler } from "../../utils/async-handler";
 import {
   createProjectController,
+  deleteProjectController,
   getAllProjectsController,
   getProjectByIdController,
 } from "./project.controller";
@@ -22,6 +23,19 @@ projectRoute.get(
   "/:projectId",
   authMiddleware,
   asyncHandler(getProjectByIdController),
+);
+
+/**
+ * DELETE /api/project/:projectId
+ *
+ * DELETE project by id
+ *
+ * User must be a member of the project organization.
+ */
+projectRoute.delete(
+  "/:projectId",
+  authMiddleware,
+  asyncHandler(deleteProjectController),
 );
 
 /**

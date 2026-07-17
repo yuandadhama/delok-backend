@@ -47,7 +47,7 @@ app.use("/api/project", projectRoute);
 
 app.use("/api/ingestion", ingestionRoute);
 
-app.use("/api/log", logEventRoute);
+app.use("/api/projects/:projectId/logs", logEventRoute);
 
 // route to test if server run already
 app.get("/", (req, res) => {

@@ -64,3 +64,14 @@ export const findProjectByIdForMember = async (
     },
   });
 };
+
+/**
+ * Delete project by id.
+ */
+export const deleteProject = async (projectId: string) => {
+  return prisma.project.delete({
+    where: {
+      id: projectId,
+    },
+  });
+};

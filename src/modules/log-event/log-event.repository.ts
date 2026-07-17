@@ -10,5 +10,8 @@ export const findLogsByProjectId = async (projectId: string) => {
     where: {
       projectId,
     },
+    orderBy: {
+      occurredAt: "desc",
+    },
   });
 };

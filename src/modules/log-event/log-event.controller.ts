@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { getLogsByProjectIdService } from "./log-event.service";
 
 /**
- * GET /api/logs/project/:projectId
+ * GET /api/projects/:projectId/logs
  *
  * Get all logs for a project.
  */

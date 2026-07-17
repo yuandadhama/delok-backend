@@ -1,8 +1,15 @@
 // /src/modules/project/project.service.ts
 
 import { randomBytes } from "crypto";
-import { ensureOrganizationMember } from "../organization/organization.authorization";
-import { createProject, findAllProjects } from "./project.repository";
+import {
+  ensureOrganizationMember,
+  ensureOrganizationOwner,
+} from "../organization/organization.authorization";
+import {
+  createProject,
+  deleteProject,
+  findAllProjects,
+} from "./project.repository";
 import { AppError } from "../../utils/AppError";
 import { ensureProjectMember } from "./project.authorization";
 
@@ -45,8 +52,26 @@ export const getAllProjectsService = async (
  * User must be a member of project organization.
  */
 export const getProjectByIdService = async (
-  userId: string,
   projectId: string,
+  userId: string,
 ) => {
   return ensureProjectMember(projectId, userId);
+};
+
+/**
+ * Delete project.
+ *
+ * User must:
+ * - belong to organization
+ * - be organization owner
+ */
+export const deleteProjectService = async (
+  projectId: string,
+  userId: string,
+) => {
+  const project = await ensureProjectMember(projectId, userId);
+
+  await ensureOrganizationOwner(project.organizationId, userId);
+
+  return deleteProject(projectId);
 };

@@ -3,6 +3,7 @@
 import { Request, Response } from "express";
 import {
   createProjectService,
+  deleteProjectService,
   getAllProjectsService,
   getProjectByIdService,
 } from "./project.service";
@@ -48,7 +49,23 @@ export const getProjectByIdController = async (req: Request, res: Response) => {
   const projectId = String(req.params.projectId);
   const userId = req.session.user.id;
 
-  const data = await getProjectByIdService(userId, projectId);
+  const data = await getProjectByIdService(projectId, userId);
+  res.json({
+    success: true,
+    data,
+  });
+};
+
+/**
+ * DELETE /api/project/:projectId
+ *
+ * DELETE project by id
+ */
+export const deleteProjectController = async (req: Request, res: Response) => {
+  const projectId = String(req.params.projectId);
+  const userId = req.session.user.id;
+
+  const data = await deleteProjectService(projectId, userId);
   res.json({
     success: true,
     data,
