@@ -7,6 +7,7 @@ import {
   deleteOrganizationService,
   getAllOrganizationService,
   getOrganizationByIdService,
+  updateOrganizationService,
 } from "./organization.service";
 
 /**
@@ -58,6 +59,26 @@ export const getOrganizationByIdController = async (
   const userId = req.session.user.id;
 
   const data = await getOrganizationByIdService(id, userId);
+
+  res.json({
+    success: true,
+    data,
+  });
+};
+
+/**
+ * PATCH /api/organization/:id
+ * update organization by id.
+ */
+export const updateOrganizationController = async (
+  req: Request,
+  res: Response,
+) => {
+  const id = String(req.params.id);
+  const userId = req.session.user.id;
+  const name = req.body.name;
+
+  const data = await updateOrganizationService(userId, id, name);
 
   res.json({
     success: true,

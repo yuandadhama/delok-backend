@@ -13,7 +13,7 @@ model OrganizationMember {
   organizationId String
   userId String
 
-  role String @default("owner")
+  role OrganizationRole
 
   joinedAt DateTime @default(now())
 
@@ -25,3 +25,7 @@ model OrganizationMember {
   @@id([organizationId, userId])
 }
 
+enum OrganizationRole {
+  OWNER
+  MEMBER
+}

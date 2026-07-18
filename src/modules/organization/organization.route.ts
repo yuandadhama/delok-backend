@@ -10,9 +10,33 @@ import {
   deleteOrganizationController,
   getAllOrganizationController,
   getOrganizationByIdController,
+  updateOrganizationController,
 } from "./organization.controller";
+import { validate } from "../../middlewares/validate.middleware";
+import { organizationSchema } from "./organization.validation";
 
 export const organizationRoute = express.Router();
+
+/**
+ * GET /api/organization
+ * Get all organizations
+ */
+organizationRoute.get(
+  "/",
+  authMiddleware,
+  asyncHandler(getAllOrganizationController),
+);
+
+/**
+ * POST /api/organization
+ * Create organization
+ */
+organizationRoute.post(
+  "/",
+  authMiddleware,
+  validate(organizationSchema),
+  asyncHandler(createOrganizationController),
+);
 
 /**
  * GET /api/organization/:id
@@ -25,6 +49,17 @@ organizationRoute.get(
 );
 
 /**
+ * PATCH /api/organization/:id
+ * update organization by id
+ */
+organizationRoute.patch(
+  "/:id",
+  authMiddleware,
+  validate(organizationSchema),
+  asyncHandler(updateOrganizationController),
+);
+
+/**
  * DELETE /api/organization/:id
  * delete organization by id
  */
@@ -32,24 +67,4 @@ organizationRoute.delete(
   "/:id",
   authMiddleware,
   asyncHandler(deleteOrganizationController),
-);
-
-/**
- * POST /api/organization
- * Create organization
- */
-organizationRoute.post(
-  "/",
-  authMiddleware,
-  asyncHandler(createOrganizationController),
-);
-
-/**
- * GET /api/organization
- * Get all organizations
- */
-organizationRoute.get(
-  "/",
-  authMiddleware,
-  asyncHandler(getAllOrganizationController),
 );

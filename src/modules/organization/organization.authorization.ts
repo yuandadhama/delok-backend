@@ -3,7 +3,7 @@
 import { AppError } from "../../utils/AppError";
 import {
   findOrganizationByIdForMember,
-  findOrganizationOwner,
+  findOwnerMembership,
 } from "./organization.repository";
 
 /**
@@ -26,20 +26,22 @@ export const ensureOrganizationMember = async (
 };
 
 /**
- * Ensure current user is organization owner
+ * Ensure current user is organization owner.
  *
  * Throws:
- * 403 Forbidden
- * if user is not owner
+ * - 403 Forbidden when user is not an owner.
+ *
+ * Returns:
+ * - Owner membership record.
  */
 export const ensureOrganizationOwner = async (
   organizationId: string,
   userId: string,
 ) => {
-  const member = await findOrganizationOwner(organizationId, userId);
+  const member = await findOwnerMembership(organizationId, userId);
 
   if (!member) {
-    throw new AppError("owner access required", 403);
+    throw new AppError("Forbidden", 403);
   }
 
   return member;
