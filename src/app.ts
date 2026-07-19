@@ -8,9 +8,10 @@ import { errorMiddleWare } from "./middlewares/error.middleware";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { organizationRoute } from "./modules/organization/organization.route";
-import { projectRoute } from "./modules/project/project.route";
+import { projectRoute } from "./modules/project/routes/project.route";
 import { ingestionRoute } from "./modules/ingestion/ingestion.route";
 import { logEventRoute } from "./modules/log-event/log-event.route";
+import { organizationProjectRoute } from "./modules/project/routes/organization-project.route";
 
 export const app = express();
 
@@ -43,8 +44,14 @@ app.use("/api/user", userRoute);
 
 app.use("/api/organization", organizationRoute);
 
+// route for projects related resource
+app.use(
+  "/api/organizations/:organizationId/projects",
+  organizationProjectRoute,
+);
 app.use("/api/project", projectRoute);
 
+// route for ingestion API
 app.use("/api/ingestion", ingestionRoute);
 
 app.use("/api/projects/:projectId/logs", logEventRoute);

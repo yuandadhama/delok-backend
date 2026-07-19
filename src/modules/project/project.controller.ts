@@ -16,8 +16,12 @@ import {
  */
 export const createProjectController = async (req: Request, res: Response) => {
   const userId = req.session.user.id;
-  const { name, organizationId } = req.body;
+  const { name } = req.body;
+  const organizationId = String(req.params.organizationId);
 
+  console.info(
+    `(controller) userId: ${userId} | name: ${name} | organizationId: ${organizationId}`,
+  );
   const data = await createProjectService(name, userId, organizationId);
   res.json({
     success: true,
