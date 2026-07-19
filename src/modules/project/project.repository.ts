@@ -10,7 +10,7 @@ export const createProject = async (
   organizationId: string,
   apiKey: string,
 ) => {
-  return await prisma.project.create({
+  return prisma.project.create({
     data: {
       name,
       organizationId,
@@ -27,7 +27,7 @@ export const createProject = async (
  * Find all projects by organization id.
  */
 export const findAllProjects = async (organizationId: string) => {
-  return await prisma.project.findMany({
+  return prisma.project.findMany({
     where: {
       organizationId,
     },
@@ -40,13 +40,10 @@ export const findAllProjects = async (organizationId: string) => {
  * Returns project only when user belongs
  * to the related organization.
  */
-export const findProjectByIdForMember = async (
-  projectId: string,
-  userId: string,
-) => {
+export const findProjectByIdForMember = async (id: string, userId: string) => {
   return prisma.project.findFirst({
     where: {
-      id: projectId,
+      id,
       organization: {
         organizationMembers: {
           some: {
@@ -66,12 +63,44 @@ export const findProjectByIdForMember = async (
 };
 
 /**
+ * Find project with organization relation.
+ *
+ * Used for ownership validation.
+ */
+export const findProjectById = async (id: string) => {
+  return prisma.project.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      id: true,
+      organizationId: true,
+    },
+  });
+};
+
+/**
+ * Update project by id.
+ *
+ */
+export const updateProject = async (id: string, name: string) => {
+  return prisma.project.update({
+    where: {
+      id,
+    },
+    data: {
+      name,
+    },
+  });
+};
+
+/**
  * Delete project by id.
  */
-export const deleteProject = async (projectId: string) => {
+export const deleteProject = async (id: string) => {
   return prisma.project.delete({
     where: {
-      id: projectId,
+      id,
     },
   });
 };

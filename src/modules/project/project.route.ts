@@ -8,34 +8,46 @@ import {
   deleteProjectController,
   getAllProjectsController,
   getProjectByIdController,
+  updateProjectController,
 } from "./project.controller";
 
 export const projectRoute = express.Router();
 
 /**
- * GET /api/project/:projectId
+ * GET /api/project/:id
  *
  * Get detailed project information.
  *
  * User must be a member of the project organization.
  */
 projectRoute.get(
-  "/:projectId",
+  "/:id",
   authMiddleware,
   asyncHandler(getProjectByIdController),
 );
 
 /**
- * DELETE /api/project/:projectId
+ * DELETE /api/project/:id
  *
  * DELETE project by id
  *
  * User must be a member of the project organization.
  */
 projectRoute.delete(
-  "/:projectId",
+  "/:id",
   authMiddleware,
   asyncHandler(deleteProjectController),
+);
+
+/**
+ * PATCH /api/project/:id
+ *
+ * Update project by id
+ */
+projectRoute.patch(
+  "/:id",
+  authMiddleware,
+  asyncHandler(updateProjectController),
 );
 
 /**

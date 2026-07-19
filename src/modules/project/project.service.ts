@@ -1,17 +1,17 @@
 // /src/modules/project/project.service.ts
 
 import { randomBytes } from "crypto";
-import {
-  ensureOrganizationMember,
-  ensureOrganizationOwner,
-} from "../organization/organization.authorization";
+import { ensureOrganizationMember } from "../organization/organization.authorization";
 import {
   createProject,
   deleteProject,
   findAllProjects,
+  updateProject,
 } from "./project.repository";
-import { AppError } from "../../utils/AppError";
-import { ensureProjectMember } from "./project.authorization";
+import {
+  ensureProjectManagementAccess,
+  ensureProjectMember,
+} from "./project.authorization";
 
 /**
  * Create new project inside organization.
@@ -23,9 +23,6 @@ export const createProjectService = async (
   userId: string,
   organizationId: string,
 ) => {
-  if (name.length < 3) {
-    throw new AppError("project name too short", 400);
-  }
   await ensureOrganizationMember(organizationId, userId);
 
   const apiKey = `dlok_${randomBytes(32).toString("hex")}`;
@@ -51,11 +48,23 @@ export const getAllProjectsService = async (
  *
  * User must be a member of project organization.
  */
-export const getProjectByIdService = async (
-  projectId: string,
+export const getProjectByIdService = async (id: string, userId: string) => {
+  return ensureProjectMember(id, userId);
+};
+
+/**
+ * Update project
+ *
+ * User must be owner of project organization.
+ */
+export const updateProjectService = async (
+  id: string,
   userId: string,
+  name: string,
 ) => {
-  return ensureProjectMember(projectId, userId);
+  await ensureProjectManagementAccess(id, userId);
+
+  return updateProject(id, name);
 };
 
 /**
@@ -65,13 +74,8 @@ export const getProjectByIdService = async (
  * - belong to organization
  * - be organization owner
  */
-export const deleteProjectService = async (
-  projectId: string,
-  userId: string,
-) => {
-  const project = await ensureProjectMember(projectId, userId);
+export const deleteProjectService = async (id: string, userId: string) => {
+  await ensureProjectManagementAccess(id, userId);
 
-  await ensureOrganizationOwner(project.organizationId, userId);
-
-  return deleteProject(projectId);
+  return deleteProject(id);
 };
