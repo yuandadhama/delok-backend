@@ -2,11 +2,16 @@
 
 import { Request, Response } from "express";
 import { getLogsByProjectIdService } from "./log-event.service";
+import { logEventQuerySchema } from "./log-event.validation";
 
 /**
  * GET /api/projects/:projectId/logs
  *
- * Get all logs for a project.
+ * Query:
+ * - page
+ * - limit
+ *
+ * Get paginated logs for a project.
  */
 export const getLogsByProjectIdController = async (
   req: Request,
@@ -15,7 +20,11 @@ export const getLogsByProjectIdController = async (
   const userId = req.session.user.id;
   const projectId = String(req.params.projectId);
 
-  const data = await getLogsByProjectIdService(projectId, userId);
+  const query = logEventQuerySchema.parse(req.query);
+
+  const { page, limit } = query;
+
+  const data = await getLogsByProjectIdService(projectId, userId, page, limit);
   res.json({
     success: true,
     data,

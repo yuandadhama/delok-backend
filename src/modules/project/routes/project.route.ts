@@ -1,4 +1,4 @@
-// /src/modules/project/project.route.ts
+// /src/modules/project/route/project.route.ts
 
 import express from "express";
 import { authMiddleware } from "../../../middlewares/auth.middleware";

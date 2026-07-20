@@ -10,7 +10,7 @@ import { auth } from "./lib/auth";
 import { organizationRoute } from "./modules/organization/organization.route";
 import { projectRoute } from "./modules/project/routes/project.route";
 import { ingestionRoute } from "./modules/ingestion/ingestion.route";
-import { logEventRoute } from "./modules/log-event/log-event.route";
+import { projectLogEvent } from "./modules/log-event/routes/project-log-event.route";
 import { organizationProjectRoute } from "./modules/project/routes/organization-project.route";
 
 export const app = express();
@@ -54,7 +54,7 @@ app.use("/api/project", projectRoute);
 // route for ingestion API
 app.use("/api/ingestion", ingestionRoute);
 
-app.use("/api/projects/:projectId/logs", logEventRoute);
+app.use("/api/projects/:projectId/logs", projectLogEvent);
 
 // route to test if server run already
 app.get("/", (req, res) => {
