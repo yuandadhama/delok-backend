@@ -5,7 +5,7 @@ import { authMiddleware } from "../../../middlewares/auth.middleware";
 import { asyncHandler } from "../../../utils/async-handler";
 import { getLogsByProjectIdController } from "../log-event.controller";
 
-export const projectLogEvent = express.Router({
+export const projectLogEventRoute = express.Router({
   mergeParams: true,
 });
 
@@ -16,7 +16,7 @@ export const projectLogEvent = express.Router({
  *
  * User must be a member of the project organization.
  */
-projectLogEvent.get(
+projectLogEventRoute.get(
   "/",
   authMiddleware,
   asyncHandler(getLogsByProjectIdController),

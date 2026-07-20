@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "api_key" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "revokedAt" TIMESTAMP(3);
