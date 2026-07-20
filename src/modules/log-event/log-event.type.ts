@@ -9,6 +9,8 @@ export type LogFilter = {
   level?: string;
   environment?: string;
   search?: string;
+  from?: Date;
+  to?: Date;
 };
 
 export type Pagination = {

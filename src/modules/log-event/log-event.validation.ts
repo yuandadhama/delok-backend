@@ -7,6 +7,8 @@ export const logEventQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(100).default(50),
   level: z.string().trim().toLowerCase().optional(),
   environment: z.string().trim().optional(),
+  from: z.coerce.date().optional(),
+  to: z.coerce.date().optional(),
   search: z.string().trim().optional(),
 });
 

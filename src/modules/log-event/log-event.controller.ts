@@ -15,6 +15,8 @@ import { logEventQuerySchema } from "./log-event.validation";
  * - level
  * - environment
  * - search
+ * - from
+ * - to
  *
  * User must be a member of the project organization.
  */
