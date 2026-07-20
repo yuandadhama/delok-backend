@@ -7,11 +7,16 @@ import { logEventQuerySchema } from "./log-event.validation";
 /**
  * GET /api/projects/:projectId/logs
  *
+ * Get paginated logs for a project.
+ *
  * Query:
  * - page
  * - limit
+ * - level
+ * - environment
+ * - search
  *
- * Get paginated logs for a project.
+ * User must be a member of the project organization.
  */
 export const getLogsByProjectIdController = async (
   req: Request,
@@ -22,9 +27,8 @@ export const getLogsByProjectIdController = async (
 
   const query = logEventQuerySchema.parse(req.query);
 
-  const { page, limit } = query;
+  const data = await getLogsByProjectIdService(projectId, userId, query);
 
-  const data = await getLogsByProjectIdService(projectId, userId, page, limit);
   res.json({
     success: true,
     data,

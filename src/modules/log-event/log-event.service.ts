@@ -2,6 +2,7 @@
 
 import { ensureProjectMember } from "../project/project.authorization";
 import { countLogs, findLogsByProjectId } from "./log-event.repository";
+import { LogEventQuery } from "./log-event.validation";
 
 /**
  * Get paginated logs for a project.
@@ -12,16 +13,23 @@ import { countLogs, findLogsByProjectId } from "./log-event.repository";
 export const getLogsByProjectIdService = async (
   projectId: string,
   userId: string,
-  page: number,
-  limit: number,
+  query: LogEventQuery,
 ) => {
   await ensureProjectMember(projectId, userId);
+
+  const { page, limit, ...filter } = query;
 
   const skip = (page - 1) * limit;
 
   const [total, logs] = await Promise.all([
-    countLogs(projectId),
-    findLogsByProjectId(projectId, skip, limit),
+    countLogs(projectId, filter),
+    findLogsByProjectId(projectId, {
+      pagination: {
+        skip,
+        limit,
+      },
+      filter,
+    }),
   ]);
 
   const totalPages = Math.ceil(total / limit);
