@@ -45,6 +45,7 @@ export const findApiKeysByProjectId = async (projectId: string) => {
     select: {
       id: true,
       name: true,
+      keyPrefix: true,
       lastUsedAt: true,
       createdAt: true,
       revokedAt: true,
