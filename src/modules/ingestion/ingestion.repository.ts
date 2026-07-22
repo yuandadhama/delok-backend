@@ -31,10 +31,16 @@ export const createLogEvent = async (
 /**
  * Find API key by key value.
  */
-export const findApiKeyByKey = async (key: string) => {
-  return prisma.apiKey.findFirst({
+export const findApiKeyByKeyHash = async (keyHash: string) => {
+  return prisma.apiKey.findUnique({
     where: {
-      key,
+      keyHash,
+    },
+    select: {
+      id: true,
+      projectId: true,
+      revokedAt: true,
+      lastUsedAt: true,
     },
   });
 };

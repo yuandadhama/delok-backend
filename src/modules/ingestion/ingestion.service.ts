@@ -2,7 +2,8 @@
 
 import { JsonObject } from "@prisma/client/runtime/client";
 import { AppError } from "../../utils/AppError";
-import { createLogEvent, findApiKeyByKey } from "./ingestion.repository";
+import { createLogEvent, findApiKeyByKeyHash } from "./ingestion.repository";
+import { sha256 } from "../../utils/hash";
 
 /**
  * Create new log event.
@@ -19,11 +20,18 @@ export const createLogEventService = async (
   message?: string,
   payload?: JsonObject,
 ) => {
-  const apiKey = await findApiKeyByKey(key);
+  const keyHash = sha256(key);
+
+  const apiKey = await findApiKeyByKeyHash(keyHash);
 
   if (!apiKey) {
     throw new AppError("Invalid API key", 401);
   }
+
+  if (apiKey.revokedAt) {
+    throw new AppError("API Key already revoked", 401);
+  }
+
   const projectId = apiKey.projectId;
 
   return await createLogEvent(
