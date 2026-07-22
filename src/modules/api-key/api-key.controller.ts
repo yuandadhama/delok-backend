@@ -5,7 +5,9 @@ import {
   createApiKeyService,
   getApiKeysByProjectIdService,
   revokeApiKeyService,
+  updateApiKeyNameService,
 } from "./api-key.service";
+import id from "zod/v4/locales/id.cjs";
 
 export const createApiKeyController = async (req: Request, res: Response) => {
   const projectId = String(req.params.projectId);
@@ -33,6 +35,22 @@ export const getApiKeysByProjectIdController = async (
   const userId = req.session.user.id;
 
   const data = await getApiKeysByProjectIdService(projectId, userId);
+
+  res.json({
+    success: true,
+    data,
+  });
+};
+
+export const updateApiKeyNameController = async (
+  req: Request,
+  res: Response,
+) => {
+  const id = String(req.params.id);
+  const name = String(req.body.name);
+  const userId = req.session.user.id;
+
+  const data = await updateApiKeyNameService(id, name, userId);
 
   res.json({
     success: true,

@@ -55,6 +55,17 @@ export const findApiKeysByProjectId = async (projectId: string) => {
   });
 };
 
+export const updateApiKeyName = async (id: string, name: string) => {
+  return prisma.apiKey.update({
+    where: {
+      id,
+    },
+    data: {
+      name,
+    },
+  });
+};
+
 /**
  * Revoke API key.
  *

@@ -3,11 +3,23 @@
 import express from "express";
 import { authMiddleware } from "../../../middlewares/auth.middleware";
 import { asyncHandler } from "../../../utils/async-handler";
-import { revokeApiKeyController } from "../api-key.controller";
+import {
+  revokeApiKeyController,
+  updateApiKeyNameController,
+} from "../api-key.controller";
+import { validate } from "../../../middlewares/validate.middleware";
+import { ApiKeySchema } from "../api-key.validation";
 
 export const apiKeyRoute = express.Router({
   mergeParams: true,
 });
+
+apiKeyRoute.patch(
+  "/:id",
+  authMiddleware,
+  validate(ApiKeySchema),
+  asyncHandler(updateApiKeyNameController),
+);
 
 /**
  * PATCH /api/api-key/:id/revoke

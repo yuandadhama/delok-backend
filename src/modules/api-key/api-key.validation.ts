@@ -2,6 +2,6 @@
 
 import { z } from "zod";
 
-export const createApiKeySchema = z.object({
+export const ApiKeySchema = z.object({
   name: z.string().min(3).max(100),
 });

@@ -8,6 +8,7 @@ import {
   findApiKeyById,
   findApiKeysByProjectId,
   revokeApiKey,
+  updateApiKeyName,
 } from "./api-key.repository";
 import { sha256 } from "../../utils/hash";
 
@@ -62,6 +63,32 @@ export const getApiKeysByProjectIdService = async (
   await ensureProjectManagementAccess(projectId, userId);
 
   return findApiKeysByProjectId(projectId);
+};
+
+export const updateApiKeyNameService = async (
+  id: string,
+  name: string,
+  userId: string,
+) => {
+  const apiKey = await findApiKeyById(id);
+
+  if (!apiKey) {
+    throw new AppError("ApiKey not found", 404);
+  }
+
+  if (apiKey.revokedAt) {
+    throw new AppError("API key already revoked cannot update name", 400);
+  }
+
+  await ensureProjectManagementAccess(apiKey.projectId, userId);
+
+  const updatedApiKey = await updateApiKeyName(id, name);
+
+  return {
+    message: "API Key name updated",
+    id: updatedApiKey.id,
+    name: updatedApiKey.name,
+  };
 };
 
 /**
