@@ -44,3 +44,17 @@ export const findApiKeyByKeyHash = async (keyHash: string) => {
     },
   });
 };
+
+/**
+ * Update API key last usage timestamp.
+ */
+export const updateApiKeyLastUsedAt = async (id: string) => {
+  return prisma.apiKey.update({
+    where: {
+      id,
+    },
+    data: {
+      lastUsedAt: new Date(),
+    },
+  });
+};

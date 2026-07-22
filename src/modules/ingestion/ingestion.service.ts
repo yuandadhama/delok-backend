@@ -2,7 +2,11 @@
 
 import { JsonObject } from "@prisma/client/runtime/client";
 import { AppError } from "../../utils/AppError";
-import { createLogEvent, findApiKeyByKeyHash } from "./ingestion.repository";
+import {
+  createLogEvent,
+  findApiKeyByKeyHash,
+  updateApiKeyLastUsedAt,
+} from "./ingestion.repository";
 import { sha256 } from "../../utils/hash";
 
 /**
@@ -30,6 +34,13 @@ export const createLogEventService = async (
 
   if (apiKey.revokedAt) {
     throw new AppError("API Key already revoked", 401);
+  }
+
+  if (
+    !apiKey.lastUsedAt ||
+    Date.now() - apiKey.lastUsedAt.getTime() > 5 * 60 * 1000
+  ) {
+    await updateApiKeyLastUsedAt(apiKey.id);
   }
 
   const projectId = apiKey.projectId;
