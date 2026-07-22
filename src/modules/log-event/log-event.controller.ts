@@ -31,7 +31,7 @@ export const getLogsByProjectIdController = async (
 
   const data = await getLogsByProjectIdService(projectId, userId, query);
 
-  res.json({
+  res.status(201).json({
     success: true,
     data,
   });

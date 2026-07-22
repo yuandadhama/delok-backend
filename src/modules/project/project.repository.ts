@@ -5,20 +5,11 @@ import { prisma } from "../../lib/prisma";
 /**
  * Create project and generate its first API key.
  */
-export const createProject = async (
-  name: string,
-  organizationId: string,
-  apiKey: string,
-) => {
+export const createProject = async (name: string, organizationId: string) => {
   return prisma.project.create({
     data: {
       name,
       organizationId,
-      apiKeys: {
-        create: {
-          key: apiKey,
-        },
-      },
     },
   });
 };
@@ -49,13 +40,6 @@ export const findProjectByIdForMember = async (id: string, userId: string) => {
           some: {
             userId,
           },
-        },
-      },
-    },
-    include: {
-      apiKeys: {
-        select: {
-          key: true,
         },
       },
     },

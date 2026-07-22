@@ -23,7 +23,7 @@ export const createProjectController = async (req: Request, res: Response) => {
     `(controller) userId: ${userId} | name: ${name} | organizationId: ${organizationId}`,
   );
   const data = await createProjectService(name, userId, organizationId);
-  res.json({
+  res.status(201).json({
     success: true,
     data,
   });

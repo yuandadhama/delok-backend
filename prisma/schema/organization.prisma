@@ -3,7 +3,7 @@ model Organization {
   id   String @id @default(cuid())
   name String
 
-  projects Project[]
+  projects            Project[]
   organizationMembers OrganizationMember[]
 
   @@map("organization")
@@ -11,18 +11,18 @@ model Organization {
 
 model OrganizationMember {
   organizationId String
-  userId String
+  userId         String
 
   role OrganizationRole
 
   joinedAt DateTime @default(now())
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("organization_member")
   @@id([organizationId, userId])
+  @@map("organization_member")
 }
 
 enum OrganizationRole {

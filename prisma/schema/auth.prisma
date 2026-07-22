@@ -12,6 +12,7 @@ model User {
 
   organizationMembers OrganizationMember[]
   @@map("user")
+  apiKeys ApiKey[]
 }
 
 model Session {

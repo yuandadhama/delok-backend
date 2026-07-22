@@ -1,6 +1,5 @@
 // /src/modules/project/project.service.ts
 
-import { randomBytes } from "crypto";
 import {
   ensureOrganizationMember,
   ensureOrganizationOwner,
@@ -31,9 +30,7 @@ export const createProjectService = async (
   );
   await ensureOrganizationOwner(organizationId, userId);
 
-  const apiKey = `dlok_${randomBytes(32).toString("hex")}`;
-
-  return await createProject(name, organizationId, apiKey);
+  return await createProject(name, organizationId);
 };
 
 /**

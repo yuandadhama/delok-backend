@@ -1,9 +1,78 @@
 // /src/modules/api-key/api-key.service.ts
 
+import { randomBytes } from "crypto";
 import { AppError } from "../../utils/AppError";
 import { ensureProjectManagementAccess } from "../project/project.authorization";
-import { findApiKeyById, revokeApiKey } from "./api-key.repository";
+import {
+  createApiKey,
+  findApiKeyById,
+  findApiKeysByProjectId,
+  revokeApiKey,
+} from "./api-key.repository";
+import { sha256 } from "../../utils/hash";
 
+/**
+ * Create a new API key for a project.
+ *
+ * Authorization:
+ * User must have project management access.
+ *
+ * Security:
+ * - Generates cryptographically secure random key.
+ * - Stores hash only.
+ * - Returns plaintext key exactly once.
+ */
+export const createApiKeyService = async (
+  projectId: string,
+  userId: string,
+  name: string,
+) => {
+  await ensureProjectManagementAccess(projectId, userId);
+
+  const rawKey = `dlok_${randomBytes(32).toString("hex")}`;
+
+  const keyPrefix = rawKey.slice(0, 12);
+  const keyHash = sha256(rawKey);
+
+  await createApiKey({
+    createdById: userId,
+    keyHash,
+    keyPrefix,
+    name,
+    projectId,
+  });
+
+  return {
+    key: rawKey,
+  };
+};
+
+/**
+ * Get all API keys belonging to a project.
+ *
+ * Authorization:
+ * User must have project management access.
+ *
+ * Returns metadata only.
+ */
+export const getApiKeysByProjectIdService = async (
+  projectId: string,
+  userId: string,
+) => {
+  await ensureProjectManagementAccess(projectId, userId);
+
+  return findApiKeysByProjectId(projectId);
+};
+
+/**
+ * Revoke API key.
+ *
+ * Authorization:
+ * User must have project management access.
+ *
+ * Revocation is permanent.
+ * Revoked keys can no longer authenticate ingestion requests.
+ */
 export const revokeApiKeyService = async (id: string, userId: string) => {
   const apiKey = await findApiKeyById(id);
 
@@ -12,16 +81,16 @@ export const revokeApiKeyService = async (id: string, userId: string) => {
   }
 
   if (apiKey.revokedAt) {
-    throw new AppError("ApiKey already revoked", 400);
+    throw new AppError("API key already revoked", 400);
   }
 
   await ensureProjectManagementAccess(apiKey.projectId, userId);
 
-  await revokeApiKey(id);
+  const revokedApiKey = await revokeApiKey(id);
 
   return {
     message: "Api Key revoked successfully",
     id: apiKey.id,
-    revokedAt: new Date(),
+    revokedAt: revokedApiKey.revokedAt,
   };
 };

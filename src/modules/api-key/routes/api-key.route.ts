@@ -9,6 +9,13 @@ export const apiKeyRoute = express.Router({
   mergeParams: true,
 });
 
+/**
+ * PATCH /api/api-key/:id/revoke
+ *
+ * Revoke an API key.
+ *
+ * User must have project management access.
+ */
 apiKeyRoute.patch(
   "/:id/revoke",
   authMiddleware,

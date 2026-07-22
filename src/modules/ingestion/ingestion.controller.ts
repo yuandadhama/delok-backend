@@ -26,7 +26,7 @@ export const createLogEventController = async (req: Request, res: Response) => {
     message,
     payload,
   );
-  res.json({
+  res.status(201).json({
     success: true,
     data,
   });

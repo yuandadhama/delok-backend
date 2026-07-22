@@ -23,7 +23,7 @@ export const createOrganizationController = async (
 
   const data = await createOrganizationService(name, userId);
 
-  res.json({
+  res.status(201).json({
     success: true,
     data,
   });
