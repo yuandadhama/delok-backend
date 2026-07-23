@@ -8,6 +8,7 @@ import {
   updateApiKeyLastUsedAt,
 } from "./ingestion.repository";
 import { sha256 } from "../../utils/hash";
+import { delok } from "../../lib/delok";
 
 /**
  * Create new log event.

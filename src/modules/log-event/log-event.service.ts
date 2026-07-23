@@ -1,5 +1,6 @@
 // /src/modules/log-event/log-event.service.ts
 
+import { delok } from "../../lib/delok";
 import { ensureProjectMember } from "../project/project.authorization";
 import { countLogs, findLogsByProjectId } from "./log-event.repository";
 import { LogEventQuery } from "./log-event.validation";

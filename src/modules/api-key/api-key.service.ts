@@ -11,6 +11,7 @@ import {
   updateApiKeyName,
 } from "./api-key.repository";
 import { sha256 } from "../../utils/hash";
+import { delok } from "../../lib/delok";
 
 /**
  * Create a new API key for a project.
@@ -41,6 +42,13 @@ export const createApiKeyService = async (
     keyPrefix,
     name,
     projectId,
+  });
+
+  delok.info({
+    event: "API Key Created",
+    payload: {
+      projectId,
+    },
   });
 
   return {
