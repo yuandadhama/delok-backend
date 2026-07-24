@@ -14,6 +14,7 @@ import { projectLogEventRoute } from "./modules/log-event/routes/project-log-eve
 import { organizationProjectRoute } from "./modules/project/routes/organization-project.route";
 import { apiKeyRoute } from "./modules/api-key/routes/api-key.route";
 import { projectApiKeyRoute } from "./modules/api-key/routes/project-api-key.route";
+import { authRateLimiter } from "./middlewares/rate-limit/auth-rate-limit.middleware";
 
 export const app = express();
 
@@ -39,6 +40,7 @@ app.use((req, res, next) => {
 });
 
 // auth route better auth setting
+app.use("/api/auth", authRateLimiter);
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
 // route for all modules
