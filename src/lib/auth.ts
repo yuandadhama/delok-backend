@@ -1,10 +1,12 @@
 // /src/lib/auth.ts
 
-import { betterAuth } from "better-auth";
+import { APIError, betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { resend } from "./resend";
 import { delok } from "./delok";
+import { createAuthMiddleware } from "better-auth/api";
+import { passwordSchema } from "../features/auth/auth.schema";
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -31,6 +33,8 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
+    minPasswordLength: 8,
+    maxPasswordLength: 128,
     requireEmailVerification: true,
 
     // reset password setup
@@ -60,6 +64,22 @@ export const auth = betterAuth({
         },
       });
     },
+  },
+
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      console.log("PATH:", ctx.path);
+      console.log("BODY:", ctx.body);
+      if (ctx.path !== "/sign-up/email") return;
+
+      const result = passwordSchema.safeParse(ctx.body.password);
+
+      if (!result.success) {
+        throw new APIError("BAD_REQUEST", {
+          message: result.error.issues[0].message,
+        });
+      }
+    }),
   },
 
   emailVerification: {

@@ -29,7 +29,7 @@ export const createApiKeyService = async (
   userId: string,
   name: string,
 ) => {
-  await ensureProjectManagementAccess(projectId, userId);
+  const project = await ensureProjectManagementAccess(projectId, userId);
 
   const rawKey = `dlok_${randomBytes(32).toString("hex")}`;
 
@@ -45,9 +45,12 @@ export const createApiKeyService = async (
   });
 
   delok.info({
-    event: "API Key Created",
+    event: "api-key.created",
     payload: {
+      organizationId: project.organization.id,
       projectId,
+      organizationName: project.organization.name,
+      projectName: project.name,
     },
   });
 
