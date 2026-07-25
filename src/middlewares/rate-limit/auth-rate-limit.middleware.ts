@@ -29,8 +29,12 @@ const logoutLimiter = rateLimit({
 const verificationEmailLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   limit: 5,
-  message: {
-    message: "Too many email verification request requests, try again later",
+
+  handler: (req, res) => {
+    return res.status(429).json({
+      code: "RATE_LIMIT_EXCEEDED",
+      message: "Too many verification email requests. Please try again later.",
+    });
   },
 });
 const resetPasswordLimiter = rateLimit({
@@ -58,6 +62,10 @@ export const authRateLimiter = (req: any, res: any, next: any) => {
 
   if (path === "/request-password-reset") {
     return resetPasswordLimiter(req, res, next);
+  }
+
+  if (path === "/resend-verification") {
+    return verificationEmailLimiter(req, res, next);
   }
 
   next();

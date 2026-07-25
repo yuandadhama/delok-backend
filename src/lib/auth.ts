@@ -97,7 +97,7 @@ export const auth = betterAuth({
       );
 
       try {
-        await resend.emails.send({
+        const response = await resend.emails.send({
           from: "Delok <onboarding@resend.dev>",
           to: user.email,
           subject: "Verify your email",
@@ -109,6 +109,10 @@ export const auth = betterAuth({
           </div>
           `,
         });
+
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
       } catch (error) {
         delok.error({
           event: "auth.email_verification.failed",
