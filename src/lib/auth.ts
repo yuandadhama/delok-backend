@@ -31,6 +31,10 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
+  onAPIError: {
+    errorURL: "http://localhost:3000/auth/error",
+  },
+
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
