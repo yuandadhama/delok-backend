@@ -8,7 +8,6 @@ import {
   updateApiKeyLastUsedAt,
 } from "./ingestion.repository";
 import { sha256 } from "../../utils/hash";
-import { delok } from "../../lib/delok";
 
 /**
  * Create new log event.
@@ -30,7 +29,7 @@ export const createLogEventService = async (
   const apiKey = await findApiKeyByKeyHash(keyHash);
 
   if (!apiKey) {
-    throw new AppError("Invalid API key", 401);
+    throw new AppError("Invalid API key", 401, "INVALID_API_KEY");
   }
 
   if (apiKey.revokedAt) {

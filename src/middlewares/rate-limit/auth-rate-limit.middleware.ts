@@ -1,28 +1,44 @@
 // src/middlewares/rate-limit/auth-rate-limit.middleware.ts
 
 import rateLimit from "express-rate-limit";
+import { errorResponse } from "../../utils/api-response";
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 5,
-  message: {
-    message: "Too many login attempts",
+  handler(req, res) {
+    return errorResponse(
+      res,
+      429,
+      "RATE_LIMIT_EXCEEDED",
+      "Too many sign-in requests",
+    );
   },
 });
 
 const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   limit: 5,
-  message: {
-    message: "Too many registration attempts",
+  handler(req, res) {
+    return errorResponse(
+      res,
+      429,
+      "RATE_LIMIT_EXCEEDED",
+      "Too many sign-up requests",
+    );
   },
 });
 
 const logoutLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
   limit: 30,
-  message: {
-    message: "Too many logout attempts",
+  handler(req, res) {
+    return errorResponse(
+      res,
+      429,
+      "RATE_LIMIT_EXCEEDED",
+      "Too many sign-out requests",
+    );
   },
 });
 
@@ -30,18 +46,25 @@ const verificationEmailLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   limit: 5,
 
-  handler: (req, res) => {
-    return res.status(429).json({
-      code: "RATE_LIMIT_EXCEEDED",
-      message: "Too many verification email requests. Please try again later.",
-    });
+  handler(req, res) {
+    return errorResponse(
+      res,
+      429,
+      "RATE_LIMIT_EXCEEDED",
+      "Too many email verification requests",
+    );
   },
 });
 const resetPasswordLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   limit: 3,
-  message: {
-    message: "Too many password reset requests, try again later",
+  handler(req, res) {
+    return errorResponse(
+      res,
+      429,
+      "RATE_LIMIT_EXCEEDED",
+      "Too many reset password email requests",
+    );
   },
 });
 

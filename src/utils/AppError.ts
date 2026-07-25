@@ -2,12 +2,14 @@
 
 export class AppError extends Error {
   constructor(
-    message: string,
-    public code: number,
+    public message: string,
+    public statusCode: number,
+    public errorCode: string = "UNKNOWN_ERROR",
   ) {
     super(message);
+
     this.name = "AppError";
-    this.code = code;
+
     Object.setPrototypeOf(this, AppError.prototype);
   }
 }

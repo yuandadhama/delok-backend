@@ -4,7 +4,7 @@ import express from "express";
 import cors from "cors";
 
 import { userRoute } from "./modules/user/user.route";
-import { errorMiddleWare } from "./middlewares/error.middleware";
+import { errorMiddleware } from "./middlewares/error.middleware";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { organizationRoute } from "./modules/organization/organization.route";
@@ -72,4 +72,4 @@ app.get("/", (req, res) => {
   res.send("hello");
 });
 
-app.use(errorMiddleWare);
+app.use(errorMiddleware);
