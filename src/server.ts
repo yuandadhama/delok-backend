@@ -12,7 +12,7 @@ const server = createServer(app);
 
 server.on("upgrade", (request, socket, head) => {
   websocket.handleUpgrade(request, socket, head, (client) => {
-    websocket.emit("connetion", client, request);
+    websocket.emit("connection", client, request);
   });
 });
 
