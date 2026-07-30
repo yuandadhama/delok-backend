@@ -69,7 +69,28 @@ app.use("/api/api-key", apiKeyRoute);
 
 // route to test if server run already
 app.get("/", (req, res) => {
-  res.send("hello");
+  res.send(`<!DOCTYPE html>
+<html>
+  <body>
+    <h1>WebSocket Test</h1>
+
+    <script>
+      const socket = new WebSocket("ws://localhost:8000");
+
+      socket.onopen = () => {
+        console.log("Connected!");
+      };
+
+      socket.onclose = () => {
+        console.log("Disconnected!");
+      };
+
+      socket.onerror = (err) => {
+        console.error(err);
+      };
+    </script>
+  </body>
+</html>`);
 });
 
 app.use(errorMiddleware);

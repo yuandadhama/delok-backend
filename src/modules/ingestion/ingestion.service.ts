@@ -8,6 +8,7 @@ import {
   updateApiKeyLastUsedAt,
 } from "./ingestion.repository";
 import { sha256 } from "../../utils/hash";
+import { realtime } from "../../infrastructure/realtime/realtime.service";
 
 /**
  * Create new log event.
@@ -45,7 +46,7 @@ export const createLogEventService = async (
 
   const projectId = apiKey.projectId;
 
-  return await createLogEvent(
+  const createdLog = await createLogEvent(
     projectId,
     environment,
     level,
@@ -54,4 +55,11 @@ export const createLogEventService = async (
     message,
     payload,
   );
+
+  realtime.emit({
+    type: "log.created",
+    data: createdLog,
+  });
+
+  return createdLog;
 };
