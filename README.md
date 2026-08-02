@@ -32,7 +32,6 @@ Instead of scattering `console.log` calls or ad-hoc log strings across your code
 - **Structured by design** — every event follows the same schema
 - **Realtime** — logs reach your dashboard the moment they're stored
 - **Project-scoped** — API keys and dashboards are isolated per project
-- **Built to grow** — the same event pipeline will power future AI-assisted investigation and anomaly detection features
 
 ## Architecture
 
