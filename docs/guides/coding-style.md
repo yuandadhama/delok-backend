@@ -5,24 +5,25 @@ This guide codifies the conventions **actually observed in the repository**. The
 ## 1. File Naming
 
 All files use **kebab-case** with a **layer suffix**:
+
 ```
 <domain>.<layer>.ts
 ```
 
-| Layer suffix | Used for |
-|-------------|----------|
-| `.route.ts` | Express Router definition + endpoint wiring |
-| `.controller.ts` | HTTP request handlers (thin) |
-| `.service.ts` | Business logic + authorization orchestration |
-| `.repository.ts` | Prisma queries (persistence only) |
-| `.validation.ts` | Zod schemas + inferred types |
-| `.authorization.ts` | `ensure*()` access control helpers |
-| `.middleware.ts` | Reusable Express middleware |
-| `.type.ts` | Type-only files (interfaces/types, no runtime code) |
-| `.query.ts` | Query builder helpers (e.g. Prisma `where` composition) |
+| Layer suffix        | Used for                                                |
+| ------------------- | ------------------------------------------------------- |
+| `.route.ts`         | Express Router definition + endpoint wiring             |
+| `.controller.ts`    | HTTP request handlers (thin)                            |
+| `.service.ts`       | Business logic + authorization orchestration            |
+| `.repository.ts`    | Prisma queries (persistence only)                       |
+| `.validation.ts`    | Zod schemas + inferred types                            |
+| `.authorization.ts` | `ensure*()` access control helpers                      |
+| `.middleware.ts`    | Reusable Express middleware                             |
+| `.type.ts`          | Type-only files (interfaces/types, no runtime code)     |
+| `.query.ts`         | Query builder helpers (e.g. Prisma `where` composition) |
 
 **Exceptions / deviations observed**:
-- Project validation file: `project.validaton.ts` (typo: "validaton" missing an 'i') — retained for consistency; when creating new files use the correct spelling `validation`.
+
 - Routes split across files go in `routes/` subfolder with descriptive names: `<parent-resource>-<child-resource>.route.ts`
   - Example: `organization-project.route.ts` (mounted at `/organizations/:organizationId/projects`)
   - Example: `project.route.ts` (mounted at `/api/project/:id`)
@@ -31,16 +32,17 @@ All files use **kebab-case** with a **layer suffix**:
 
 All functions use **camelCase** with strict naming patterns per layer:
 
-| Layer | Naming pattern | Examples |
-|-------|---------------|----------|
-| Controller | `<verb><Noun>Controller` | `createOrganizationController`, `getAllOrganizationController`, `getOrganizationByIdController`, `updateOrganizationController`, `deleteOrganizationController` |
-| Service | `<verb><Noun>Service` | `createOrganizationService`, `getAllOrganizationService`, etc. |
-| Repository | `<operation><Entity>` with CRUD variants: `create*`, `find*`, `update*`, `delete*`, `count*` | `createOrganization`, `findAllOrganizations`, `findOrganizationById`, `findOrganizationByIdForMember`, `findOwnerMembership`, `updateOrganization`, `deleteOrganization` |
-| Authorization helper | `ensure<Object><Role>` | `ensureOrganizationMember`, `ensureOrganizationOwner`, `ensureProjectMember`, `ensureProjectManagementAccess` |
-| Middleware factory | Verb/noun + `Middleware` or descriptive name | `authMiddleware`, `validate(schema)` (factory), `errorMiddleware`, `authRateLimiter` |
-| Pure utility functions | Short verb/noun | `sha256`, `asyncHandler`, `errorResponse` |
+| Layer                  | Naming pattern                                                                               | Examples                                                                                                                                                                 |
+| ---------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Controller             | `<verb><Noun>Controller`                                                                     | `createOrganizationController`, `getAllOrganizationController`, `getOrganizationByIdController`, `updateOrganizationController`, `deleteOrganizationController`          |
+| Service                | `<verb><Noun>Service`                                                                        | `createOrganizationService`, `getAllOrganizationService`, etc.                                                                                                           |
+| Repository             | `<operation><Entity>` with CRUD variants: `create*`, `find*`, `update*`, `delete*`, `count*` | `createOrganization`, `findAllOrganizations`, `findOrganizationById`, `findOrganizationByIdForMember`, `findOwnerMembership`, `updateOrganization`, `deleteOrganization` |
+| Authorization helper   | `ensure<Object><Role>`                                                                       | `ensureOrganizationMember`, `ensureOrganizationOwner`, `ensureProjectMember`, `ensureProjectManagementAccess`                                                            |
+| Middleware factory     | Verb/noun + `Middleware` or descriptive name                                                 | `authMiddleware`, `validate(schema)` (factory), `errorMiddleware`, `authRateLimiter`                                                                                     |
+| Pure utility functions | Short verb/noun                                                                              | `sha256`, `asyncHandler`, `errorResponse`                                                                                                                                |
 
 **Pattern rules inferred**:
+
 - Use `get*ById` for single-lookup by primary key. Alternatives like `fetch` or `read` are never used.
 - Use `findAll*` (not `list*`/`getAll*`) at repository layer; service layer may use `getAll*`.
 - Authz helpers always start with `ensure*` (not `require*`, `check*`, `assert*`).
@@ -76,6 +78,7 @@ src/
 ```
 
 Modules don't import from other modules' controllers, services, or routes. The **only** accepted cross-module imports are:
+
 - **Authorization helpers**: `project.authorization.ts` imports `ensureOrganizationOwner` from `organization.authorization.ts`
 - **Repository queries for authz**: Authz helpers import from their own module's `.repository.ts` (never from other modules' repos unless you count the ensure chain which calls its own module's repo function)
 
@@ -87,6 +90,7 @@ Modules don't import from other modules' controllers, services, or routes. The *
 - Relative import paths go up to `../../utils/X` or `../../middlewares/X` as needed; no path aliases (`@/`) are configured in tsconfig or package.json.
 
 Example controller import block (standard pattern):
+
 ```typescript
 import { Request, Response } from "express";
 import { createXService, deleteXService } from "./x.service";
@@ -94,14 +98,14 @@ import { createXService, deleteXService } from "./x.service";
 
 ## 5. Layer Responsibilities
 
-| Layer | May access... | Must NEVER access... |
-|-------|-------------|---------------------|
-| Route | Middleware, Controllers, Validation schemas, asyncHandler | Prisma, Services directly, Auth helpers |
-| Controller | Services, `req`/`res` types, session via `req.session` | Prisma directly, Authorization helpers, Repositories |
-| Service | Repositories, Authorization helpers, Infrastructure singletons (realtime, delok SDK), AppError | `Request`/`Response` (Express types), Prisma client |
-| Authorization helper | Its module's Repository functions, AppError, delok SDK (audit logging) | Express types |
-| Repository | Prisma client only, generated Prisma types | Services, Controllers, AppError, auth helpers |
-| Validation schema | Zod only, imported types if needed | Any module code, Prisma |
+| Layer                | May access...                                                                                  | Must NEVER access...                                 |
+| -------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Route                | Middleware, Controllers, Validation schemas, asyncHandler                                      | Prisma, Services directly, Auth helpers              |
+| Controller           | Services, `req`/`res` types, session via `req.session`                                         | Prisma directly, Authorization helpers, Repositories |
+| Service              | Repositories, Authorization helpers, Infrastructure singletons (realtime, delok SDK), AppError | `Request`/`Response` (Express types), Prisma client  |
+| Authorization helper | Its module's Repository functions, AppError, delok SDK (audit logging)                         | Express types                                        |
+| Repository           | Prisma client only, generated Prisma types                                                     | Services, Controllers, AppError, auth helpers        |
+| Validation schema    | Zod only, imported types if needed                                                             | Any module code, Prisma                              |
 
 ## 6. Error Handling Patterns
 
@@ -123,22 +127,22 @@ return { ok: false, error: "user not found" };
 new AppError(message: string, statusCode: number, errorCode?: string);
 ```
 
-| Parameter | When to use |
-|-----------|-------------|
-| `message` | Human-readable. Keep short. |
-| `statusCode` | HTTP status. 400, 401, 403, 404, 500. |
-| `errorCode` | Machine-readable code. Optional. Used **once** in the codebase: `INVALID_API_KEY` for invalid key hash. Default `UNKNOWN_ERROR`. |
+| Parameter    | When to use                                                                                                                      |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| `message`    | Human-readable. Keep short.                                                                                                      |
+| `statusCode` | HTTP status. 400, 401, 403, 404, 500.                                                                                            |
+| `errorCode`  | Machine-readable code. Optional. Used **once** in the codebase: `INVALID_API_KEY` for invalid key hash. Default `UNKNOWN_ERROR`. |
 
 ### What layer throws what
 
-| Layer | Error type thrown |
-|-------|-------------------|
-| Auth middleware | `AppError("unauthorized", 401)` |
-| Validation middleware | Returns direct 400 response (no throw, no error middleware) |
-| Controllers | Should NOT throw manually (rare today). Let service throw. |
-| Services | `AppError(...)` for business-rule violations (not found, already revoked, too short) |
-| Authorization helpers | `AppError("Forbidden", 403)` — always same message for consistency in access-denied cases; additionally logs via `delok.warn()` |
-| Repositories | **Never** throw AppError. Return `null` for not-found; let Prisma propagate its own errors (e.g. constraint violations) which errorMiddleware surfaces as 500 |
+| Layer                 | Error type thrown                                                                                                                                             |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auth middleware       | `AppError("unauthorized", 401)`                                                                                                                               |
+| Validation middleware | Returns direct 400 response (no throw, no error middleware)                                                                                                   |
+| Controllers           | Should NOT throw manually (rare today). Let service throw.                                                                                                    |
+| Services              | `AppError(...)` for business-rule violations (not found, already revoked, too short)                                                                          |
+| Authorization helpers | `AppError("Forbidden", 403)` — always same message for consistency in access-denied cases; additionally logs via `delok.warn()`                               |
+| Repositories          | **Never** throw AppError. Return `null` for not-found; let Prisma propagate its own errors (e.g. constraint violations) which errorMiddleware surfaces as 500 |
 
 ### asyncHandler + errorMiddleware pair
 
@@ -191,11 +195,13 @@ Shared [passwordSchema](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok
 Two success shapes:
 
 **Single entity or list (no pagination):**
+
 ```json
 { "success": true, "data": entity_or_array }
 ```
 
 **Paginated list (only log-event today):**
+
 ```json
 {
   "success": true,
@@ -207,6 +213,7 @@ Two success shapes:
 ```
 
 **Custom shape for management actions (rename/revoke):**
+
 ```json
 { "success": true, "data": { "message": "...", "id": "...", ...other fields } }
 ```
@@ -222,12 +229,14 @@ Consistency rule: **every JSON response from a controller has `success: boolean`
 ## 12. Console Logging
 
 Development-oriented console logs are used freely at layer boundaries:
+
 - `console.info([METHOD] URL)` per request in app.ts
 - `console.log(req.body: ...)` per request
 - `console.info("WebSocket client connected.")`
 - `console.log("AUTH MIDDLEWARE")`, `"CHECK SESSION"`, `"AUTH MIDDLEWARE SUCCESS"`
 
 Audit/operational logging (production-grade) goes through the `delok` singleton:
+
 - `delok.info()` for positive events (password-reset sent, API key created)
 - `delok.warn()` for denied access (authorization failures, skipping verification email for already-verified user)
 - `delok.error()` for failures that need investigation (email send failure, generic 500 errors)

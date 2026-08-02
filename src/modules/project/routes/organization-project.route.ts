@@ -8,7 +8,7 @@ import {
   getAllProjectsController,
 } from "../project.controller";
 import { validate } from "../../../middlewares/validate.middleware";
-import { projectSchema } from "../project.validaton";
+import { projectSchema } from "../project.validation";
 
 export const organizationProjectRoute = express.Router({ mergeParams: true });
 
