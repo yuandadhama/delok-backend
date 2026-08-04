@@ -44,7 +44,7 @@ export const ensureProjectManagementAccess = async (
     throw new AppError("Project not found", 404);
   }
 
-  await ensureOrganizationOwner(project.organizationId, userId);
+  await ensureOrganizationOwner(project.organization.slug, userId);
 
   return project;
 };

@@ -10,19 +10,16 @@ import {
 } from "./project.service";
 
 /**
- * POST /api/project
+ * POST /api/organizations/:organizationSlug/projects
  *
  * Create a new project inside organization.
  */
 export const createProjectController = async (req: Request, res: Response) => {
   const userId = req.session.user.id;
   const { name } = req.body;
-  const organizationId = String(req.params.organizationId);
+  const organizationSlug = String(req.params.organizationSlug);
 
-  console.info(
-    `(controller) userId: ${userId} | name: ${name} | organizationId: ${organizationId}`,
-  );
-  const data = await createProjectService(name, userId, organizationId);
+  const data = await createProjectService(name, userId, organizationSlug);
   res.status(201).json({
     success: true,
     data,
@@ -30,15 +27,15 @@ export const createProjectController = async (req: Request, res: Response) => {
 };
 
 /**
- * GET /api/project/organization/:organizationId
+ * GET /api/organizations/:organizationSlug/projects
  *
  * Get all projects inside organization.
  */
 export const getAllProjectsController = async (req: Request, res: Response) => {
-  const organizationId = String(req.params.organizationId);
+  const organizationSlug = String(req.params.organizationSlug);
   const userId = req.session.user.id;
 
-  const data = await getAllProjectsService(organizationId, userId);
+  const data = await getAllProjectsService(organizationSlug, userId);
   res.json({
     success: true,
     data,

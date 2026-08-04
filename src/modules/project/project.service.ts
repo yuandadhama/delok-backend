@@ -18,19 +18,16 @@ import {
 /**
  * Create new project inside organization.
  *
- * User must be organization member.
+ * User must be organization owner.
  */
 export const createProjectService = async (
   name: string,
   userId: string,
-  organizationId: string,
+  organizationSlug: string,
 ) => {
-  console.info(
-    `(service) name: ${name} | userId: ${userId} | organizationId: ${organizationId}`,
-  );
-  await ensureOrganizationOwner(organizationId, userId);
+  const organization = await ensureOrganizationOwner(organizationSlug, userId);
 
-  return await createProject(name, organizationId);
+  return await createProject(name, organization.organizationId);
 };
 
 /**
@@ -39,11 +36,12 @@ export const createProjectService = async (
  * User must be organization member.
  */
 export const getAllProjectsService = async (
-  organizationId: string,
+  organizationSlug: string,
   userId: string,
 ) => {
-  await ensureOrganizationMember(organizationId, userId);
-  return await findAllProjects(organizationId);
+  const organization = await ensureOrganizationMember(organizationSlug, userId);
+
+  return await findAllProjects(organization.id);
 };
 
 /**

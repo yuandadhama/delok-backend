@@ -9,7 +9,7 @@ import {
   createOrganizationController,
   deleteOrganizationController,
   getAllOrganizationController,
-  getOrganizationByIdController,
+  getOrganizationBySlugController,
   updateOrganizationController,
 } from "./organization.controller";
 import { validate } from "../../middlewares/validate.middleware";
@@ -39,32 +39,32 @@ organizationRoute.post(
 );
 
 /**
- * GET /api/organization/:id
- * Get organization by id
+ * GET /api/organization/:slug
+ * Get organization by slug
  */
 organizationRoute.get(
-  "/:id",
+  "/:slug",
   authMiddleware,
-  asyncHandler(getOrganizationByIdController),
+  asyncHandler(getOrganizationBySlugController),
 );
 
 /**
- * PATCH /api/organization/:id
- * update organization by id
+ * PATCH /api/organization/:slug
+ * update organization by slug
  */
 organizationRoute.patch(
-  "/:id",
+  "/:slug",
   authMiddleware,
   validate(organizationSchema),
   asyncHandler(updateOrganizationController),
 );
 
 /**
- * DELETE /api/organization/:id
- * delete organization by id
+ * DELETE /api/organization/:slug
+ * delete organization by slug
  */
 organizationRoute.delete(
-  "/:id",
+  "/:slug",
   authMiddleware,
   asyncHandler(deleteOrganizationController),
 );

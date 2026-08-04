@@ -7,10 +7,15 @@ import { prisma } from "../../lib/prisma";
  * Create new organization and automatically
  * add creator as organization owner.
  */
-export const createOrganization = async (name: string, userId: string) => {
+export const createOrganization = async (
+  name: string,
+  slug: string,
+  userId: string,
+) => {
   return prisma.organization.create({
     data: {
       name,
+      slug,
       organizationMembers: {
         create: {
           userId,
@@ -37,51 +42,56 @@ export const findAllOrganizations = async (userId: string) => {
 };
 
 /**
- * Find organization by id.
+ * Find organization by slug.
  */
-export const findOrganizationById = async (id: string) => {
+export const findOrganizationBySlug = async (slug: string) => {
   return prisma.organization.findUnique({
     where: {
-      id,
+      slug,
     },
   });
 };
 
 /**
- * Update organization by id.
+ * Update organization by slug.
  */
-export const updateOrganization = async (id: string, name: string) => {
+export const updateOrganization = async (
+  slug: string,
+  newSlug: string,
+  name: string,
+) => {
   return prisma.organization.update({
     where: {
-      id,
+      slug,
     },
     data: {
       name,
+      slug: newSlug,
     },
   });
 };
 
 /**
- * Delete organization by the id
+ * Delete organization by the slug
  */
-export const deleteOrganization = async (id: string) => {
+export const deleteOrganization = async (slug: string) => {
   return prisma.organization.delete({
     where: {
-      id,
+      slug,
     },
   });
 };
 
 /**
- * Find organization by id and ensure user is a member.
+ * Find organization by slug and ensure user is a member.
  */
-export const findOrganizationByIdForMember = async (
-  organizationId: string,
+export const findOrganizationBySlugForMember = async (
+  slug: string,
   userId: string,
 ) => {
   return prisma.organization.findFirst({
     where: {
-      id: organizationId,
+      slug,
       organizationMembers: {
         some: {
           userId,
@@ -93,16 +103,18 @@ export const findOrganizationByIdForMember = async (
 
 /**
  * Find organization owner membership.
+ *
+ * Filters through the organization relation by slug,
+ * since `OrganizationMember` has no `slug` field.
  */
-export const findOwnerMembership = async (
-  organizationId: string,
-  userId: string,
-) => {
+export const findOwnerMembership = async (slug: string, userId: string) => {
   return prisma.organizationMember.findFirst({
     where: {
-      organizationId,
       userId,
       role: OrganizationRole.OWNER,
+      organization: {
+        slug,
+      },
     },
   });
 };

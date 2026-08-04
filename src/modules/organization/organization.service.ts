@@ -1,6 +1,6 @@
 // /src/modules/organization/organization.service.ts
 
-import { AppError } from "../../utils/AppError";
+import { generateSlug } from "../../utils/generate-slug";
 import {
   ensureOrganizationMember,
   ensureOrganizationOwner,
@@ -10,7 +10,6 @@ import {
   createOrganization,
   deleteOrganization,
   findAllOrganizations,
-  findOrganizationById,
   updateOrganization,
 } from "./organization.repository";
 
@@ -21,11 +20,8 @@ export const createOrganizationService = async (
   name: string,
   userId: string,
 ) => {
-  if (name.length < 3) {
-    throw new AppError("name too short", 400);
-  }
-
-  return createOrganization(name, userId);
+  const slug = generateSlug(name);
+  return createOrganization(name, slug, userId);
 };
 
 /**
@@ -36,42 +32,45 @@ export const getAllOrganizationService = async (userId: string) => {
 };
 
 /**
- * Get organization by id.
+ * Get organization by slug.
  *
  *
  * User must be a member of organization
  */
-export const getOrganizationByIdService = async (
-  id: string,
+export const getOrganizationBySlugService = async (
+  slug: string,
   userId: string,
 ) => {
-  return ensureOrganizationMember(id, userId);
+  return ensureOrganizationMember(slug, userId);
 };
 
 /**
- * Update organization by id.
+ * Update organization by slug.
  *
  *
- * User must be a member of organization
+ * User must be owner of organization
  */
 export const updateOrganizationService = async (
-  userId: string,
-  organizationId: string,
+  slug: string,
   name: string,
+  userId: string,
 ) => {
-  ensureOrganizationOwner(organizationId, userId);
-
-  return updateOrganization(organizationId, name);
+  await ensureOrganizationOwner(slug, userId);
+  const newSlug = generateSlug(name);
+  return updateOrganization(slug, newSlug, name);
 };
 
 /**
- * delete organization by id.
+ * Delete organization by slug.
  *
  *
- * User must be a member of organization
+ * User must be owner of organization
  */
-export const deleteOrganizationService = async (id: string, userId: string) => {
-  await ensureOrganizationOwner(id, userId);
+export const deleteOrganizationService = async (
+  slug: string,
+  userId: string,
+) => {
+  await ensureOrganizationOwner(slug, userId);
 
-  return deleteOrganization(id);
+  return deleteOrganization(slug);
 };

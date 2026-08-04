@@ -13,7 +13,7 @@ import { projectSchema } from "../project.validation";
 export const organizationProjectRoute = express.Router({ mergeParams: true });
 
 /**
- * GET /api/organization/:organizationId/projects
+ * GET /api/organizations/:organizationSlug/projects
  * Get all projects inside an organization.
  *
  * User must be a member of the organization.
@@ -25,10 +25,10 @@ organizationProjectRoute.get(
 );
 
 /**
- * POST /api/project
+ * POST /api/organizations/:organizationSlug/projects
  * Create a new project.
  *
- * User must be a member of the organization.
+ * User must be an owner of the organization.
  */
 organizationProjectRoute.post(
   "/",

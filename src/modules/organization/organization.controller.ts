@@ -6,7 +6,7 @@ import {
   createOrganizationService,
   deleteOrganizationService,
   getAllOrganizationService,
-  getOrganizationByIdService,
+  getOrganizationBySlugService,
   updateOrganizationService,
 } from "./organization.service";
 
@@ -18,7 +18,7 @@ export const createOrganizationController = async (
   req: Request,
   res: Response,
 ) => {
-  const name = String(req.body.name);
+  const name = req.body.name;
   const userId = req.session.user.id;
 
   const data = await createOrganizationService(name, userId);
@@ -48,17 +48,17 @@ export const getAllOrganizationController = async (
 };
 
 /**
- * GET /api/organization/:id
- * Get single organization by id.
+ * GET /api/organization/:slug
+ * Get single organization by slug.
  */
-export const getOrganizationByIdController = async (
+export const getOrganizationBySlugController = async (
   req: Request,
   res: Response,
 ) => {
-  const id = String(req.params.id);
+  const slug = String(req.params.slug);
   const userId = req.session.user.id;
 
-  const data = await getOrganizationByIdService(id, userId);
+  const data = await getOrganizationBySlugService(slug, userId);
 
   res.json({
     success: true,
@@ -67,18 +67,18 @@ export const getOrganizationByIdController = async (
 };
 
 /**
- * PATCH /api/organization/:id
- * update organization by id.
+ * PATCH /api/organization/:slug
+ * update organization by slug.
  */
 export const updateOrganizationController = async (
   req: Request,
   res: Response,
 ) => {
-  const id = String(req.params.id);
+  const slug = String(req.params.slug);
   const userId = req.session.user.id;
   const name = req.body.name;
 
-  const data = await updateOrganizationService(userId, id, name);
+  const data = await updateOrganizationService(slug, name, userId);
 
   res.json({
     success: true,
@@ -87,17 +87,17 @@ export const updateOrganizationController = async (
 };
 
 /**
- * DELETE /api/organization/:id
- * delete organization by id.
+ * DELETE /api/organization/:slug
+ * delete organization by slug.
  */
 export const deleteOrganizationController = async (
   req: Request,
   res: Response,
 ) => {
-  const id = String(req.params.id);
+  const slug = String(req.params.slug);
   const userId = req.session.user.id;
 
-  const data = await deleteOrganizationService(id, userId);
+  const data = await deleteOrganizationService(slug, userId);
 
   res.json({
     success: true,

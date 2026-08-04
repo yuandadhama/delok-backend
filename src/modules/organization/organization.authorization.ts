@@ -3,7 +3,7 @@
 import { delok } from "../../lib/delok";
 import { AppError } from "../../utils/AppError";
 import {
-  findOrganizationByIdForMember,
+  findOrganizationBySlugForMember,
   findOwnerMembership,
 } from "./organization.repository";
 
@@ -11,13 +11,10 @@ import {
  * Ensure current user is a member of organization.
  */
 export const ensureOrganizationMember = async (
-  organizationId: string,
+  slug: string,
   userId: string,
 ) => {
-  const organization = await findOrganizationByIdForMember(
-    organizationId,
-    userId,
-  );
+  const organization = await findOrganizationBySlugForMember(slug, userId);
 
   if (!organization) {
     delok.warn({
@@ -25,7 +22,7 @@ export const ensureOrganizationMember = async (
       message: "User is not a member of organization",
       payload: {
         userId,
-        organizationId,
+        slug,
       },
     });
     throw new AppError("Forbidden", 403);
@@ -43,18 +40,15 @@ export const ensureOrganizationMember = async (
  * Returns:
  * - Owner membership record.
  */
-export const ensureOrganizationOwner = async (
-  organizationId: string,
-  userId: string,
-) => {
-  const member = await findOwnerMembership(organizationId, userId);
+export const ensureOrganizationOwner = async (slug: string, userId: string) => {
+  const member = await findOwnerMembership(slug, userId);
 
   if (!member) {
     delok.warn({
       event: "User try to access owner feature",
       payload: {
         userId,
-        organizationId,
+        slug,
       },
     });
     throw new AppError("Forbidden", 403);

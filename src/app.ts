@@ -52,7 +52,7 @@ app.use("/api/organization", organizationRoute);
 
 // route for projects related resource
 app.use(
-  "/api/organizations/:organizationId/projects",
+  "/api/organizations/:organizationSlug/projects",
   organizationProjectRoute,
 );
 app.use("/api/project", projectRoute);

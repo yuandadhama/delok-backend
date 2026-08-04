@@ -64,6 +64,7 @@ export const findProjectById = async (id: string) => {
         select: {
           name: true,
           id: true,
+          slug: true,
         },
       },
     },
