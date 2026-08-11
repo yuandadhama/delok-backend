@@ -16,13 +16,28 @@ export const createProject = async (name: string, organizationId: string) => {
 
 /**
  * Find all projects by organization id.
+ *
+ * Also returns the total log event count per project via a single
+ * aggregated query (avoids N+1 count requests).
  */
 export const findAllProjects = async (organizationId: string) => {
-  return prisma.project.findMany({
+  const projects = await prisma.project.findMany({
     where: {
       organizationId,
     },
+    include: {
+      _count: {
+        select: {
+          logEvents: true,
+        },
+      },
+    },
   });
+
+  return projects.map(({ _count, ...project }) => ({
+    ...project,
+    logCount: _count.logEvents,
+  }));
 };
 
 /**
