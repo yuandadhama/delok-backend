@@ -7,7 +7,7 @@ export const organizationSchema = z.object({
     .min(3)
     .max(100)
     .regex(
-      /^[a-z0-9-]+$/,
-      "Only lowercase letters, numbers, and hyphens are allowed",
+      /^(?!-)(?!.*--)(?!.*-$)[A-Za-z0-9]+(?:[ -][A-Za-z0-9]+)*$/,
+      "Only alphanumeric characters, spaces, and single hyphens are allowed, and the name cannot start or end with a hyphen",
     ),
 });
