@@ -88,7 +88,7 @@ modules/
 ├── user/                # User CRUD, session (me), search
 ├── organization/        # Organization CRUD + ownership rules
 ├── project/             # Project CRUD (nested under organization)
-│   └── routes/          # Split routes: organization-project.route.ts, project.route.ts
+│   └── routes/          # Split routes: organization-project.route.ts (owns all org-scoped CRUD)
 ├── api-key/             # API key lifecycle: create, list, revoke, rename
 │   └── routes/          # Split routes: project-api-key.route.ts, api-key.route.ts
 ├── ingestion/           # Public log ingestion endpoint (x-api-key auth)
@@ -111,7 +111,7 @@ Mature modules contain a consistent set of files:
 
 **Modules may deviate**: `ingestion/` has no authorization.ts (it authenticates via API key instead), and the auth module is minimal (most auth is handled by Better Auth directly).
 
-Some modules split routes into a `routes/` subfolder when they're mounted at multiple URL prefixes (e.g., project is mounted at `/api/organizations/:organizationId/projects` for list/create AND at `/api/project/:id` for get/update/delete).
+Some modules split routes into a `routes/` subfolder when they're mounted at multiple URL prefixes or use a `<parent>-<child>` routing convention (e.g., project keeps its org-scoped CRUD in `organization-project.route.ts`, and api-key uses both `project-api-key.route.ts` and `api-key.route.ts`).
 
 ### `src/infrastructure/` — Technical Adapters
 

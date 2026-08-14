@@ -43,15 +43,16 @@ export const getAllProjectsController = async (req: Request, res: Response) => {
 };
 
 /**
- * GET /api/project/:id
+ * GET /api/organizations/:organizationSlug/projects/:projectId
  *
  * Get project details and API keys.
  */
 export const getProjectByIdController = async (req: Request, res: Response) => {
-  const id = String(req.params.id);
+  const organizationSlug = String(req.params.organizationSlug);
+  const projectId = String(req.params.projectId);
   const userId = req.session.user.id;
 
-  const data = await getProjectByIdService(id, userId);
+  const data = await getProjectByIdService(organizationSlug, projectId, userId);
   res.json({
     success: true,
     data,
@@ -59,16 +60,22 @@ export const getProjectByIdController = async (req: Request, res: Response) => {
 };
 
 /**
- * PATCH /api/project/:id
+ * PATCH /api/organizations/:organizationSlug/projects/:projectId
  *
  * Update project by id
  */
 export const updateProjectController = async (req: Request, res: Response) => {
-  const id = String(req.params.id);
+  const organizationSlug = String(req.params.organizationSlug);
+  const projectId = String(req.params.projectId);
   const userId = req.session.user.id;
   const name = req.body.name;
 
-  const data = await updateProjectService(id, userId, name);
+  const data = await updateProjectService(
+    organizationSlug,
+    projectId,
+    userId,
+    name,
+  );
   res.json({
     success: true,
     data,
@@ -76,15 +83,16 @@ export const updateProjectController = async (req: Request, res: Response) => {
 };
 
 /**
- * DELETE /api/project/:id
+ * DELETE /api/organizations/:organizationSlug/projects/:projectId
  *
  * delete project by id
  */
 export const deleteProjectController = async (req: Request, res: Response) => {
-  const id = String(req.params.id);
+  const organizationSlug = String(req.params.organizationSlug);
+  const projectId = String(req.params.projectId);
   const userId = req.session.user.id;
 
-  const data = await deleteProjectService(id, userId);
+  const data = await deleteProjectService(organizationSlug, projectId, userId);
   res.json({
     success: true,
     data,

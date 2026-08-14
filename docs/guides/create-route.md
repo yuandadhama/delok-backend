@@ -6,7 +6,7 @@ This guide explains how to add a new endpoint to an **existing** module. For cre
 
 Routes live in:
 - `src/modules/<domain>/<domain>.route.ts` — if the domain has one URL prefix
-- `src/modules/<domain>/routes/<prefix>-<domain>.route.ts` — if mounted at multiple prefixes (e.g. project uses both `/api/organizations/:organizationId/projects` and `/api/project`)
+- `src/modules/<domain>/routes/<prefix>-<domain>.route.ts` — if mounted at multiple prefixes (e.g. project uses both `/api/organizations/:organizationSlug/projects` for list/create and `/api/organizations/:organizationSlug/projects/:projectId` for get/update/delete)
 
 If adding a route whose URL path contains a parameter from the **parent** mount (e.g. `GET /api/organizations/:organizationId/teams` needs access to `req.params.organizationId`), the router **must** be created with `{ mergeParams: true }`. Existing multi-prefix routers already have this set.
 
@@ -142,12 +142,11 @@ Ordering convention from app.ts today:
 2. Auth routes + Better Auth catch-all
 3. User routes
 4. Organization routes
-5. Nested org→projects routes
-6. Standalone project routes
-7. Ingestion
-8. Project→logs, Project→api-keys, standalone api-key routes
-9. `/` test page
-10. `errorMiddleware` last
+5. Nested org→projects routes (owns all project CRUD)
+6. Ingestion
+7. Project→logs, Project→api-keys, standalone api-key routes
+8. `/` test page
+9. `errorMiddleware` last
 
 Add your new module's router in the section that matches its domain (e.g., a team router would go right after organization routes, before project routes).
 

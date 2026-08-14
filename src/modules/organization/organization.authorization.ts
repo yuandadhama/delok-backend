@@ -17,7 +17,7 @@ export const ensureOrganizationMember = async (
   const organization = await findOrganizationBySlugForMember(slug, userId);
 
   if (!organization) {
-    delok.warn({
+    await delok.warn({
       event: "organization.access_denied",
       message: "User is not a member of organization",
       payload: {
@@ -44,7 +44,7 @@ export const ensureOrganizationOwner = async (slug: string, userId: string) => {
   const member = await findOwnerMembership(slug, userId);
 
   if (!member) {
-    delok.warn({
+    await delok.warn({
       event: "User try to access owner feature",
       payload: {
         userId,

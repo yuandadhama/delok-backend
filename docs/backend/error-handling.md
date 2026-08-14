@@ -79,9 +79,9 @@ flowchart LR
     E --> F{error instanceof AppError?}
     F -- Yes --> G[statusCode / errorCode / message from error]
     F -- No (Error or unknown) --> H[500 INTERNAL_SERVER_ERROR<br/>message 'Internal Server Error']
-    G --> I[errorLogger error, req]
+    G --> I[errorLogger error, errorCode, req]
     H --> I
-    I --> J[delok.error INTERNAL_SERVER_ERROR event with stack + method + path]
+    I --> J[delok.error event = errorCode with stack + method + path]
     J --> K[JSON response]
 ```
 
@@ -147,19 +147,23 @@ Each is used in a different layer, so clients need to check for each.
 
 ## Self-Monitoring: Logging Errors to Delok
 
-The errorMiddleware calls `errorLogger(error, req)` from [lib/delok.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/lib/delok.ts#L10-L22):
+The errorMiddleware calls `errorLogger(error, errorCode, req)` from [lib/delok.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/lib/delok.ts#L10-L26):
 
 ```typescript
-export const errorLogger = async (error: Error, req: Request) => {
+export const errorLogger = async (
+  error: Error,
+  errorCode: string,
+  req: Request,
+) => {
   await delok.error({
-    event: "INTERNAL_SERVER_ERROR",
+    event: errorCode,
     message: error.message,
     payload: { method: req.method, path: req.path, stack: error.stack },
   });
 };
 ```
 
-This sends the error back into the Delok platform itself — the backend uses its own log ingestion product for self-monitoring. The full stack trace, HTTP method, and path are captured as payload.
+This sends the error back into the Delok platform itself — the backend uses its own log ingestion product for self-monitoring. The full stack trace, HTTP method, and path are captured as payload. The `event` field is the normalized `errorCode` from the error middleware (e.g. `INTERNAL_SERVER_ERROR` for generic errors, or the AppError / Prisma errorCode for domain errors) rather than a hard-coded event name.
 
 Additionally, authorization failures are logged via `delok.warn()` in the authorization helpers (not in errorMiddleware), and auth events (password reset sent, verification email sent/failed) are logged via `delok.info()` / `delok.error()` in the auth module config.
 

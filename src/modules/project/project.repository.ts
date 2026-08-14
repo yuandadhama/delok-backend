@@ -62,6 +62,24 @@ export const findProjectByIdForMember = async (id: string, userId: string) => {
 };
 
 /**
+ * Find a project that belongs to a specific organization.
+ *
+ * Encodes the organization boundary directly in the query so callers never
+ * retrieve a project that belongs to a different organization.
+ */
+export const findProjectByIdAndOrganization = async (
+  projectId: string,
+  organizationId: string,
+) => {
+  return prisma.project.findFirst({
+    where: {
+      id: projectId,
+      organizationId,
+    },
+  });
+};
+
+/**
  * Find project with organization relation.
  *
  * Used for ownership validation.

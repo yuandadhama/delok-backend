@@ -105,8 +105,7 @@ Not all routes are protected. The middleware is applied per-route in each module
 |--------|-------------------|-------|
 | `/api/auth/*` | Handled by Better Auth internally | Has rate limiter but no authMiddleware |
 | `/api/organization/*` | ALL (5 endpoints) | authMiddleware on every route |
-| `/api/organizations/:organizationId/projects` | ALL (2 endpoints) | authMiddleware on every route |
-| `/api/project/:id` | ALL (3 endpoints) | authMiddleware on every route |
+| `/api/organizations/:organizationSlug/projects` | ALL (5 endpoints) | authMiddleware on every route |
 | `/api/projects/:projectId/logs` | ALL (1 endpoint) | authMiddleware on every route |
 | `/api/projects/:projectId/api-keys` | ALL (2 endpoints) | authMiddleware on every route |
 | `/api/api-key/*` | ALL (2 endpoints) | authMiddleware on every route |

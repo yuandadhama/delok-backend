@@ -61,7 +61,7 @@ export const errorMiddleware = async (
 ) => {
   const { statusCode, errorCode, message } = getErrorInfo(error);
 
-  errorLogger(error as Error, req);
+  errorLogger(error as Error, errorCode, req);
 
   res.status(statusCode).json({
     success: false,

@@ -10,10 +10,7 @@ import {
   findAllProjects,
   updateProject,
 } from "./project.repository";
-import {
-  ensureProjectManagementAccess,
-  ensureProjectMember,
-} from "./project.authorization";
+import { ensureProjectInOrganization } from "./project.authorization";
 
 /**
  * Create new project inside organization.
@@ -45,38 +42,61 @@ export const getAllProjectsService = async (
 };
 
 /**
- * Get project detail.
+ * Get project detail inside an organization.
  *
- * User must be a member of project organization.
+ * User must:
+ * - be a member of the organization in the URL.
+ *
+ * The project must belong to that organization, otherwise the request is
+ * rejected with non-leaking 404 semantics.
  */
-export const getProjectByIdService = async (id: string, userId: string) => {
-  return ensureProjectMember(id, userId);
+export const getProjectByIdService = async (
+  organizationSlug: string,
+  projectId: string,
+  userId: string,
+) => {
+  const organization = await ensureOrganizationMember(organizationSlug, userId);
+
+  return ensureProjectInOrganization(projectId, organization.id);
 };
 
 /**
- * Update project
+ * Update project inside an organization.
  *
- * User must be owner of project organization.
+ * User must:
+ * - be an owner of the organization in the URL.
+ *
+ * The project must belong to that organization.
  */
 export const updateProjectService = async (
-  id: string,
+  organizationSlug: string,
+  projectId: string,
   userId: string,
   name: string,
 ) => {
-  await ensureProjectManagementAccess(id, userId);
+  const member = await ensureOrganizationOwner(organizationSlug, userId);
 
-  return updateProject(id, name);
+  await ensureProjectInOrganization(projectId, member.organizationId);
+
+  return updateProject(projectId, name);
 };
 
 /**
- * Delete project.
+ * Delete project inside an organization.
  *
  * User must:
- * - belong to organization
- * - be organization owner
+ * - be an owner of the organization in the URL.
+ *
+ * The project must belong to that organization.
  */
-export const deleteProjectService = async (id: string, userId: string) => {
-  await ensureProjectManagementAccess(id, userId);
+export const deleteProjectService = async (
+  organizationSlug: string,
+  projectId: string,
+  userId: string,
+) => {
+  const member = await ensureOrganizationOwner(organizationSlug, userId);
 
-  return deleteProject(id);
+  await ensureProjectInOrganization(projectId, member.organizationId);
+
+  return deleteProject(projectId);
 };

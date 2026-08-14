@@ -7,9 +7,13 @@ export const delok = new Delok({
   environment: "development",
 });
 
-export const errorLogger = async (error: Error, req: Request) => {
+export const errorLogger = async (
+  error: Error,
+  errorCode: string,
+  req: Request,
+) => {
   await delok.error({
-    event: "INTERNAL_SERVER_ERROR",
+    event: errorCode,
 
     message: error.message,
 

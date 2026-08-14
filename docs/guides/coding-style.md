@@ -25,8 +25,7 @@ All files use **kebab-case** with a **layer suffix**:
 **Exceptions / deviations observed**:
 
 - Routes split across files go in `routes/` subfolder with descriptive names: `<parent-resource>-<child-resource>.route.ts`
-  - Example: `organization-project.route.ts` (mounted at `/organizations/:organizationId/projects`)
-  - Example: `project.route.ts` (mounted at `/api/project/:id`)
+  - Example: `organization-project.route.ts` (owns all org-scoped project CRUD at `/organizations/:organizationSlug/projects`)
 
 ## 2. Function Naming
 
@@ -37,7 +36,7 @@ All functions use **camelCase** with strict naming patterns per layer:
 | Controller             | `<verb><Noun>Controller`                                                                     | `createOrganizationController`, `getAllOrganizationController`, `getOrganizationByIdController`, `updateOrganizationController`, `deleteOrganizationController`          |
 | Service                | `<verb><Noun>Service`                                                                        | `createOrganizationService`, `getAllOrganizationService`, etc.                                                                                                           |
 | Repository             | `<operation><Entity>` with CRUD variants: `create*`, `find*`, `update*`, `delete*`, `count*` | `createOrganization`, `findAllOrganizations`, `findOrganizationById`, `findOrganizationByIdForMember`, `findOwnerMembership`, `updateOrganization`, `deleteOrganization` |
-| Authorization helper   | `ensure<Object><Role>`                                                                       | `ensureOrganizationMember`, `ensureOrganizationOwner`, `ensureProjectMember`, `ensureProjectManagementAccess`                                                            |
+| Authorization helper   | `ensure<Object><Role>`                                                                       | `ensureOrganizationMember`, `ensureOrganizationOwner`, `ensureProjectMember`, `ensureProjectManagementAccess`, `ensureProjectInOrganization`                                                                        |
 | Middleware factory     | Verb/noun + `Middleware` or descriptive name                                                 | `authMiddleware`, `validate(schema)` (factory), `errorMiddleware`, `authRateLimiter`                                                                                     |
 | Pure utility functions | Short verb/noun                                                                              | `sha256`, `asyncHandler`, `errorResponse`                                                                                                                                |
 
@@ -148,7 +147,7 @@ new AppError(message: string, statusCode: number, errorCode?: string);
 
 - Every async controller is wrapped with `asyncHandler(...)` in the route file. **Never wrap inside the controller itself.**
 - `errorMiddleware` is the **last** middleware mounted in `app.ts`.
-- Any unhandled `Error` is sanitized to `500 Internal Server Error` (original message hidden from client), and always logged to Delok via `errorLogger(error, req)` which captures method, path, and stack trace as payload.
+- Any unhandled `Error` is sanitized to `500 Internal Server Error` (original message hidden from client), and always logged to Delok via `errorLogger(error, errorCode, req)` which captures method, path, and stack trace as payload.
 
 ## 7. Validation Patterns
 
