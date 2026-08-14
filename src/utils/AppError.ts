@@ -5,6 +5,7 @@ export class AppError extends Error {
     public message: string,
     public statusCode: number,
     public errorCode: string = "UNKNOWN_ERROR",
+    public payload: object = {},
   ) {
     super(message);
 

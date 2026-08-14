@@ -43,10 +43,21 @@ export const ensureProjectInOrganization = async (
   projectId: string,
   organizationId: string,
 ) => {
-  const project = await findProjectByIdAndOrganization(projectId, organizationId);
+  const project = await findProjectByIdAndOrganization(
+    projectId,
+    organizationId,
+  );
 
   if (!project) {
-    throw new AppError("Project not found", 404);
+    throw new AppError(
+      "mismatch project and organization id",
+      404,
+      "project.not_found",
+      {
+        projectId,
+        organizationId,
+      },
+    );
   }
 
   return project;
@@ -68,9 +79,15 @@ export const ensureProjectManagementAccess = async (
   const project = await findProjectById(id);
 
   if (!project) {
-    throw new AppError("Project not found", 404);
+    throw new AppError(
+      "User try to access unknown or unauthorized project",
+      404,
+      "project.not_found",
+      {
+        userId,
+      },
+    );
   }
-
   await ensureOrganizationOwner(project.organization.slug, userId);
 
   return project;

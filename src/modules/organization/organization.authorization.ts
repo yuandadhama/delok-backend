@@ -25,7 +25,7 @@ export const ensureOrganizationMember = async (
         slug,
       },
     });
-    throw new AppError("Forbidden", 403);
+    throw new AppError("Forbidden", 403, "organization.access_denied");
   }
 
   return organization;
@@ -51,7 +51,7 @@ export const ensureOrganizationOwner = async (slug: string, userId: string) => {
         slug,
       },
     });
-    throw new AppError("Forbidden", 403);
+    throw new AppError("Forbidden", 403, "organization.owner_access_denied");
   }
 
   return member;
