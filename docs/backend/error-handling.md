@@ -34,7 +34,7 @@ Every domain error thrown in services/authorization constructs an `AppError` wit
 | Invalid API key hash               | 401        | INVALID_API_KEY         | ingestion.service                                      |
 | API key revoked                    | 401        | UNKNOWN_ERROR           | ingestion.service                                      |
 | Forbidden (not member/owner)       | 403        | UNKNOWN_ERROR           | \*.authorization.ts files                              |
-| Resource not found (targeted)      | 404        | UNKNOWN_ERROR           | user.service, project.authorization, api-key.service   |
+| Resource not found (targeted)      | 404        | UNKNOWN_ERROR           | project.authorization, api-key.service   |
 | Validation failure (business rule) | 400        | UNKNOWN_ERROR           | api-key.service (already revoked)                      |
 
 ## `asyncHandler` — Promise Rejection Bridge

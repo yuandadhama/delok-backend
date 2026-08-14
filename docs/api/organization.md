@@ -73,7 +73,7 @@ Creates a new organization and automatically adds the authenticated user as `OWN
 
 | Field  | Zod rule                                                                     |
 | ------ | ---------------------------------------------------------------------------- |
-| `name` | Required string, trimmed, min 3 chars, max 100 chars, regex `/^[a-z0-9-]+$/` |
+| `name` | Required string, trimmed, min 3 chars, max 100 chars, regex `/^(?!-)(?!.*--)(?!.*-$)[A-Za-z0-9]+(?:[ -][A-Za-z0-9]+)*$/` (alphanumeric, spaces, single hyphens; cannot start/end with hyphen) |
 
 ### Authorization
 
@@ -81,7 +81,7 @@ Automatic creator-as-owner pattern: no pre-authz check because the org doesn't e
 
 ### Slug Generation
 
-The service derives the URL slug on creation via `generateSlug(name)` (lowercase, spaces → hyphens, strip unsupported characters). Because the Zod regex already restricts names to lowercase letters, numbers, and hyphens, `generateSlug` is a safe normalization for the same input.
+The service derives the URL slug on creation via `generateSlug(name)` (lowercase, spaces → hyphens, strip unsupported characters). The Zod regex allows mixed case, spaces, and single hyphens; `generateSlug` normalizes this to a lowercase hyphenated slug (e.g. `"Acme Corp"` → `"acme-corp"`).
 
 ### Response: `201 Created`
 
@@ -165,7 +165,7 @@ Change organization name. Requires `OWNER` role. The slug is **regenerated** fro
 }
 ```
 
-Same Zod schema as create (trimmed, 3–100 chars, regex `/^[a-z0-9-]+$/`).
+Same Zod schema as create (trimmed, 3–100 chars, regex `/^(?!-)(?!.*--)(?!.*-$)[A-Za-z0-9]+(?:[ -][A-Za-z0-9]+)*$/`).
 
 ### Authorization
 

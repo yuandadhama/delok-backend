@@ -65,7 +65,7 @@ sequenceDiagram
             VM->>C: Pass through
         end
         C->>S: Extract params → call service function
-        S->>A: ensureOrganizationOwner / ensureProjectMember
+        S->>A: ensureOrganizationMember / ensureOrganizationOwner / ensureProjectInOrganization
         A->>Repo: Query membership / ownership
         Repo->>P: prisma.findFirst / findUnique
         P->>DB: SELECT ...
@@ -92,7 +92,7 @@ sequenceDiagram
     end
 
     Note over EM,SDK: Error Path
-    EM->>SDK: errorLogger(error, req) → delok.error(...)
+    EM->>SDK: errorLogger(error, errorCode, req) → delok.error(...)
     EM-->>Client: status { success: false, error: { code, message }, timestamp }
 ```
 
@@ -102,7 +102,7 @@ The backend has **two distinct authentication mechanisms** depending on the endp
 
 ### Flow A: Session-Based (UI → Backend)
 
-Used by all routes mounted under `/api/organization/*`, `/api/project/*`, `/api/user/me`, `/api/projects/*/logs`, `/api/projects/*/api-keys`, `/api/api-key/*`.
+Used by all routes mounted under `/api/organization/*`, `/api/organizations/:organizationSlug/projects/*`, `/api/user/me`, `/api/projects/*/logs`, `/api/projects/*/api-keys`, `/api/api-key/*`.
 
 **Step-by-step:**
 1. Client sends HTTP request with Better Auth cookies (from browser)
@@ -142,13 +142,13 @@ Used exclusively by `POST /api/ingestion`.
 
 Authorization is **not middleware** — it's invoked explicitly inside service functions via `ensure*()` helpers.
 
-Example flow for `DELETE /api/project/:id`:
-1. Controller → `deleteProjectService(id, userId)`
-2. Service → `ensureProjectManagementAccess(id, userId)` — see [project.authorization.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/modules/project/project.authorization.ts#L37-L50)
-3. Helper → `findProjectById(id)` (repo) → get `organizationId`
-4. Helper → `ensureOrganizationOwner(organizationId, userId)` — see [organization.authorization.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/modules/organization/organization.authorization.ts#L46-L64)
-5. Helper → `findOwnerMembership(organizationId, userId)` (repo)
-6. If owner: returns the membership (pass)
+Example flow for `DELETE /api/organizations/:organizationSlug/projects/:projectId`:
+1. Controller → `deleteProjectService(organizationSlug, projectId, userId)`
+2. Service → `ensureOrganizationOwner(organizationSlug, userId)` — see [organization.authorization.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/modules/organization/organization.authorization.ts#L43-L58)
+3. Helper → `findOwnerMembership(slug, userId)` (repo)
+4. Service → `ensureProjectInOrganization(projectId, member.organizationId)` — see [project.authorization.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/modules/project/project.authorization.ts#L42-L53)
+5. Helper → `findProjectByIdAndOrganization(projectId, organizationId)` (repo) — 404 if the project does not belong to that organization
+6. If owner + project in org: proceeds to `deleteProject(projectId)`
 7. If not owner: logs with `delok.warn()` → throws `AppError("Forbidden", 403)`
 
 This design means authorization is **co-located with business logic**: every service call makes its own authz decision. There is no declarative `@Roles(OWNER)` annotation pattern.
@@ -162,7 +162,7 @@ Errors are caught at two levels:
 2. **`errorMiddleware`** — mounted as the last app-level middleware. See [error.middleware.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/middlewares/error.middleware.ts#L31-L51):
    - If error is `AppError`: use its `statusCode`, `errorCode`, `message`
    - If generic `Error`: 500 + "Internal Server Error"
-   - Logs via `errorLogger(error, req)` which calls `delok.error()` (self-monitoring)
+   - Logs via `errorLogger(error, errorCode, req)` which calls `delok.error()` (self-monitoring)
    - Returns JSON: `{ success: false, error: { code, message }, timestamp }`
 
 **Exception:** The validation middleware returns errors directly (not via error middleware) to preserve Zod's structured `issues` array format.

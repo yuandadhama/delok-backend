@@ -67,7 +67,7 @@ graph BT
 | api-key | ❌ No | `api-key.service.ts` |
 | ingestion | ❌ No | `ingestion.service.ts` |
 | log-event | ❌ No | `log-event.service.ts` |
-| user | ❌ No | `user.service.ts` |
+| user | ❌ No | (no service — controller returns `req.session` directly) |
 
 **Why?** Decouples HTTP handlers from the database engine. If Prisma is swapped out (unlikely but the architectural boundary exists), only repositories change.
 
@@ -102,7 +102,7 @@ Service functions:
 
 Anti-pattern NOT present:
 - No `if (!entity) throw AppError(...)` inside repositories — the caller decides the error semantics
-- No authorization checks in WHERE clauses unless wrapped in a semantically named function like `findOrganizationByIdForMember` (the "ForMember" suffix signals the query is authz-aware but the authz decision itself is in `*.authorization.ts`)
+- No authorization checks in WHERE clauses unless wrapped in a semantically named function like `findOrganizationBySlugForMember` (the "ForMember" suffix signals the query is authz-aware but the authz decision itself is in `*.authorization.ts`)
 
 Repository-only behaviors:
 - Build Prisma query objects
@@ -180,7 +180,7 @@ Compare two possible designs:
 
 Cross-module authorization import pattern:
 ```
-project.service.ts → imports ensureOrganizationOwner from ../organization/organization.authorization
+project.service.ts → imports ensureOrganizationMember / ensureOrganizationOwner from ../organization/organization.authorization
 project.authorization.ts → imports ensureOrganizationOwner from ../organization/organization.authorization
 api-key.service.ts → imports ensureProjectManagementAccess from ../project/project.authorization
 ```
@@ -205,8 +205,7 @@ organization.authorization.ts   ← when present
 Type-only files use `.type.ts` (e.g. `log-event.type.ts`), query builder helpers use `.query.ts` (e.g. `log-event.query.ts`), and routes mounted at multiple prefixes go into a `routes/` subfolder with descriptive names:
 
 ```
-project/routes/organization-project.route.ts   (mounted at /api/organizations/:organizationId/projects)
-project/routes/project.route.ts                 (mounted at /api/project)
+project/routes/organization-project.route.ts   (mounted at /api/organizations/:organizationSlug/projects; owns all project CRUD)
 ```
 
 ---
@@ -217,6 +216,4 @@ Small inconsistencies found in the current implementation (documented for comple
 
 1. **API key controller imports Zod locale**: `api-key.controller.ts` has `import id from "zod/v4/locales/id.cjs"` — this import is unused in the current code and appears to be dead code. Does not follow the "no external SDK imports in controllers" spirit, though it's harmless.
 
-2. **User module has open endpoints**: Routes like `GET /api/user`, `GET /api/user/:id`, `POST /api/user`, `PUT /api/user/:id`, `DELETE /api/user/:id`, and `GET /api/user/search` have **no auth middleware**. They are publicly accessible. `GET /api/user/me` is the only protected user route. Whether this is intentional is unclear from the code alone.
-
-3. **Query param validation not using middleware**: `log-event.controller.ts` calls `logEventQuerySchema.parse(req.query)` inside the controller. Error format on invalid query params goes through generic error middleware → surfaces as 500 "Internal Server Error" instead of a structured 400. Contrasts with body validation which uses the dedicated `validate()` middleware with a structured Zod response.
+2. **Query param validation not using middleware**: `log-event.controller.ts` calls `logEventQuerySchema.parse(req.query)` inside the controller. Error format on invalid query params goes through generic error middleware → surfaces as 500 "Internal Server Error" instead of a structured 400. Contrasts with body validation which uses the dedicated `validate()` middleware with a structured Zod response.

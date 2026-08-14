@@ -78,8 +78,6 @@ Path params (`/:id`, `/:organizationId`, `/:projectId`) are **not validated agai
 | `organizationSchema` | [organization.validation.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/modules/organization/organization.validation.ts) | Organization create/update body | `name`: string, trimmed, 3–100 chars |
 | `projectSchema` | [project.validaton.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/modules/project/project.validaton.ts) | Project create/update body | `name`: string, trimmed, 3–100 chars |
 | `ApiKeySchema` | [api-key.validation.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/modules/api-key/api-key.validation.ts) | API key create/rename body | `name`: string, 3–100 chars |
-| `createUserSchema` | [user.validation.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/modules/user/user.validation.ts) | User create body | `name`: 3–100 chars, `email`: valid email format |
-| `updateUserSchema` | [user.validation.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/modules/user/user.validation.ts) | User update body | `name`: 3–100 chars, `email`: valid email format |
 | `createLogEventSchema` | [ingestion.validation.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/modules/ingestion/ingestion.validation.ts) | Ingestion POST body | `environment` (non-empty), `level` (non-empty), `event` (non-empty), `message?`, `occurredAt` (coerced to Date), `payload?` |
 | `logEventQuerySchema` | [log-event.validation.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/modules/log-event/log-event.validation.ts) | Log GET query params | `page` (coerce int ≥1, default 1), `limit` (coerce int 1–100, default 50), `level?`, `environment?`, `from?` (coerce date), `to?` (coerce date), `search?` |
 | `passwordSchema` | [features/auth/auth.schema.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/features/auth/auth.schema.ts) | Sign-up password (Better Auth hook) | 8–128 chars + uppercase + lowercase + number + special char |
@@ -94,7 +92,7 @@ Path params (`/:id`, `/:organizationId`, `/:projectId`) are **not validated agai
 
 **What's NOT validated** (as of current implementation):
 - ❌ Path parameters (`/:id`, etc.) — existence is checked by service/authz queries, but format/type is not enforced via Zod
-- ❌ Query parameters outside `log-event` module (e.g., `/api/user/search?name=...` casts to string without validation)
+- ❌ Query parameters outside `log-event` module — no other module currently exposes query-parameter GET endpoints (ingestion is POST; org/project GETs take no query params)
 - ❌ Session object shape on `req.session` — typed as `any` in [express.d.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/types/express.d.ts)
 - ❌ x-api-key header format (the ingestion controller checks for existence but not the `dlok_` prefix before hashing)
 

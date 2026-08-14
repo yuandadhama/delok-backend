@@ -131,7 +131,8 @@ Note: Better Auth manages all rows in this table; custom code does not write to 
 | Field | Type | Constraints / Defaults | Meaning |
 |-------|------|----------------------|---------|
 | `id` | String | PK, `cuid()` | CUID for URL-friendly, collision-resistant IDs |
-| `name` | String | Required | Organization display name |
+| `name` | String | Required | Organization display name (used to derive `slug`) |
+| `slug` | String | Required, `@unique` | URL identifier; derived from `name` via `generateSlug` (lowercased, spaces → hyphens, non `[a-z0-9-]` stripped) |
 
 **Relationships**:
 - `projects: Project[]` — all projects in this org (Cascade delete: deleting org removes all projects)

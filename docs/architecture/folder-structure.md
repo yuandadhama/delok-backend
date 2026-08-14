@@ -85,7 +85,7 @@ Middleware is mounted per-route in the `*.route.ts` files (not globally) unless 
 ```
 modules/
 ├── auth/                # Verification email resend endpoint
-├── user/                # User CRUD, session (me), search
+├── user/                # Session (me) only — returns req.session
 ├── organization/        # Organization CRUD + ownership rules
 ├── project/             # Project CRUD (nested under organization)
 │   └── routes/          # Split routes: organization-project.route.ts (owns all org-scoped CRUD)

@@ -109,8 +109,7 @@ Not all routes are protected. The middleware is applied per-route in each module
 | `/api/projects/:projectId/logs` | ALL (1 endpoint) | authMiddleware on every route |
 | `/api/projects/:projectId/api-keys` | ALL (2 endpoints) | authMiddleware on every route |
 | `/api/api-key/*` | ALL (2 endpoints) | authMiddleware on every route |
-| `/api/user/me` | Yes | Protected |
-| `/api/user` (list), `/api/user/:id` (CRUD), `/api/user/search` | **NO** | Publicly accessible — see [dependency-rules.md](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/docs/architecture/dependency-rules.md#violations--deviations-observed) |
+| `/api/user/me` | Yes | Protected (the only user endpoint) |
 | `/api/ingestion` | **NO** (not session-based) | Uses API key auth inside controller/service (see next section) |
 
 ## API Key Authentication (Ingestion Only)

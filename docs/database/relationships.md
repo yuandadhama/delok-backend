@@ -76,6 +76,7 @@ erDiagram
     Organization {
         String id PK
         String name
+        String slug UK
     }
 
     OrganizationMember {

@@ -35,7 +35,7 @@ Path:    "/path"
 | Middleware | Skip if... | Example |
 |-----------|-----------|---------|
 | `authMiddleware` | Endpoint uses API-key auth instead | `POST /api/ingestion` |
-| `authMiddleware` | Endpoint is genuinely public (rare) | `GET /api/user/search` (today, though see user.md for security note) |
+| `authMiddleware` | Endpoint is genuinely public (rare) | `POST /api/ingestion` (API-key auth in controller, no session) |
 | `validate(schema)` | No body (GET, DELETE) OR validation is done manually inside controller | Query param validation (currently Zod `.parse` in controller) |
 | `authMiddleware` + `validate` | Auth endpoint handled by Better Auth catch-all | `/api/auth/*splat` is delegated to `toNodeHandler(auth)` |
 
@@ -45,9 +45,9 @@ Path:    "/path"
 
 ```typescript
 organizationRoute.get(
-  "/:id",
+  "/:slug",
   authMiddleware,
-  asyncHandler(getOrganizationByIdController),
+  asyncHandler(getOrganizationBySlugController),
 );
 ```
 
@@ -92,10 +92,10 @@ Before writing the controller, **determine the source of each argument** your se
 Then call **one** service function with plain arguments.
 
 ```typescript
-export const getOrganizationByIdController = async (req: Request, res: Response) => {
-  const id = String(req.params.id);
+export const getOrganizationBySlugController = async (req: Request, res: Response) => {
+  const slug = String(req.params.slug);
   const userId = req.session.user.id;
-  const data = await getOrganizationByIdService(id, userId);
+  const data = await getOrganizationBySlugService(slug, userId);
   res.json({ success: true, data });
 };
 ```

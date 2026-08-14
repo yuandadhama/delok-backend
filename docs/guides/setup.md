@@ -59,8 +59,8 @@ For Google and GitHub providers, configure the OAuth callback URLs in each provi
 Applies all migrations in `prisma/migrations/` to your database, in timestamp order.
 
 ```bash
-npm run prisma:migrate
-# → expands to: prisma migrate dev --schema prisma/schema/schema.prisma
+npx prisma migrate dev
+# → uses prisma.config.ts (multi-schema: prisma/schema)
 ```
 
 What this does:
@@ -79,7 +79,7 @@ The command runs in **dev** mode: if you edit the schema later and re-run, it wi
 The Prisma Client is output to `src/generated/prisma/` (see `output` in [schema.prisma](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/prisma/schema/schema.prisma)). You'll need this any time you change any `.prisma` file:
 
 ```bash
-npm run prisma:generate
+npx prisma generate
 ```
 
 This generates TypeScript types for every model (`User`, `Organization`, `Project`, `ApiKey`, `LogEvent`, etc.) that are imported via:
@@ -145,7 +145,7 @@ The `GOOGLE_CLIENT_ID` or `GOOGLE_CLIENT_SECRET` env vars are unset. Both are va
 ### Problem: Prisma Client not found
 Error: `Cannot find module '../generated/prisma/client'`. Solution:
 ```bash
-npm run prisma:generate
+npx prisma generate
 ```
 
 ### Problem: CORS errors when frontend calls backend

@@ -14,14 +14,16 @@ flowchart LR
     D --> G[Commit SQL file to Git]
 ```
 
-### Commands (from package.json)
+### Commands
+
+> Note: `package.json` defines **no** `prisma:*` npm scripts. Prisma is invoked directly via `npx`.
 
 | Command | Effect | When to run |
 |---------|--------|-------------|
-| `npm run prisma:generate` | Regenerate TypeScript Prisma Client at `src/generated/prisma/` | After any `.prisma` schema change, or after cloning the repo |
-| `npm run prisma:migrate` | Run `prisma migrate dev` — create/apply migrations against the dev DB | Iterative development: after changing schema |
+| `npx prisma generate` | Regenerate TypeScript Prisma Client at `src/generated/prisma/` | After any `.prisma` schema change, or after cloning the repo |
+| `npx prisma migrate dev` | Create/apply migrations against the dev DB | Iterative development: after changing schema |
 
-**Both commands** point to the multi-schema root: `--schema prisma/schema/schema.prisma` (the merge point of all domain `.prisma` files).
+Both commands use the multi-schema config in `prisma.config.ts` (`schema: "prisma/schema"`).
 
 ## Migration Storage and Configuration
 
@@ -60,7 +62,7 @@ The Prisma Client is generated into **`src/generated/prisma/`**, which is import
 import { PrismaClient } from "../generated/prisma/client";
 ```
 
-Generated files are likely gitignored (standard practice). Regenerate on new clones via `prisma:generate`.
+Generated files are likely gitignored (standard practice). Regenerate on new clones via `npx prisma generate`.
 
 ## Migration History (Inferred from Timestamps)
 
@@ -82,6 +84,8 @@ Migrations in `prisma/migrations/` are applied in timestamp order. Each is a fol
 | 12 | 20260719120658 | `update_log_event_ondelete` | Adjusted `LogEvent.projectId` FK delete rule to Cascade (or corrected any missing FK). Ensures log events are cleaned up when their project is deleted. |
 | 13 | 20260720164220 | `add_revoked_at_to_api_key` | Added `revokedAt DateTime?` column to `api_key` table for soft-delete of API keys. Ingestion flow now checks this column. |
 | 14 | 20260722140759 | `harden_api_key_model` | Final ApiKey hardening — added `@@unique([keyHash])`, `keyPrefix`, `lastUsedAt DateTime?`, `createdById FK → User ON DELETE SET NULL`, and extra indexes (`projectId`, `createdById`) for the ApiKey model as it neared production use. |
+| 15 | 20260804145420 | `update_organization` | Updated the `Organization` model as a precursor to slug support (schema/constraint adjustments). |
+| 16 | 20260804160535 | `add_organization_slug` | Added `slug` column (UNIQUE) to `organization`. Derived from `name` via `generateSlug` (lowercased, spaces → hyphens, non `[a-z0-9-]` stripped). Organizations are now addressed by slug in the API (`/api/organization/:slug`). |
 
 ## Development Workflow: Adding a Schema Change
 
@@ -91,7 +95,7 @@ Migrations in `prisma/migrations/` are applied in timestamp order. Each is a fol
    - Projects/ApiKeys → `project.prisma`
    - Logging → `log-event.prisma`
    - New generator/datasource options → `schema.prisma`
-2. **Run `npm run prisma:migrate`** (calls `prisma migrate dev`).
+2. **Run `npx prisma migrate dev`**.
    - Prisma diffs the merged schema against the dev DB
    - Creates `<new-timestamp>_<slug>/migration.sql` in `prisma/migrations/`
    - Applies the migration to the dev DB

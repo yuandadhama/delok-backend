@@ -30,13 +30,13 @@ All helpers live in `*.authorization.ts` files per module.
 
 File: [organization.authorization.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/modules/organization/organization.authorization.ts)
 
-#### `ensureOrganizationMember(organizationId, userId)`
+#### `ensureOrganizationMember(organizationSlug, userId)`
 
 Guarantees the user has any role (OWNER or MEMBER) in the organization.
 
 ```mermaid
 flowchart LR
-    A[ensureOrganizationMember] --> B[findOrganizationByIdForMember<br/>WHERE org.id = ? AND org.organizationMembers CONTAINS userId]
+    A[ensureOrganizationMember] --> B[findOrganizationBySlugForMember<br/>WHERE org.slug = ? AND org.organizationMembers CONTAINS userId]
     B --> C{Row found?}
     C -- Yes --> D[Return organization entity]
     C -- No --> E[delok.warn<br/>organization.access_denied]
@@ -44,8 +44,9 @@ flowchart LR
 ```
 
 Used by:
-- `getOrganizationByIdService` (read org by id)
+- `getOrganizationBySlugService` (read org by slug)
 - `getAllProjectsService` (list projects requires org membership)
+- `getProjectByIdService` (read a project requires membership in the URL organization)
 
 #### `ensureOrganizationOwner(organizationId, userId)`
 
@@ -63,6 +64,7 @@ flowchart LR
 Used by:
 - `updateOrganizationService`, `deleteOrganizationService`
 - `createProjectService` (creating a project requires org ownership)
+- `updateProjectService`, `deleteProjectService`
 - Indirectly by `ensureProjectManagementAccess` (see below)
 
 ### Project-Level Helpers
@@ -82,8 +84,23 @@ flowchart LR
 ```
 
 Used by:
-- `getProjectByIdService` (read project detail)
 - `getLogsByProjectIdService` (read logs requires project → org membership)
+
+#### `ensureProjectInOrganization(projectId, organizationId)`
+
+Guarantees the project exists **and** belongs to the given organization. The organization boundary is encoded directly in the query, so a project belonging to a different organization is never returned — even when the caller is a member/owner of that other organization too.
+
+```mermaid
+flowchart LR
+    A[ensureProjectInOrganization] --> B[findProjectByIdAndOrganization<br/>WHERE project.id = ? AND project.organizationId = ?]
+    B --> C{Row found?}
+    C -- Yes --> D[Return project entity]
+    C -- No --> E[throw AppError Project not found 404<br/>non-leaking]
+```
+
+Used by:
+- `getProjectByIdService` (after `ensureOrganizationMember`)
+- `updateProjectService`, `deleteProjectService` (after `ensureOrganizationOwner`)
 
 #### `ensureProjectManagementAccess(projectId, userId)`
 
@@ -101,7 +118,6 @@ flowchart LR
 ```
 
 Used by:
-- `updateProjectService`, `deleteProjectService`
 - `createApiKeyService` (creating API keys = management action)
 - `getApiKeysByProjectIdService` (listing API keys = management action)
 - `updateApiKeyNameService`, `revokeApiKeyService`
@@ -111,19 +127,22 @@ Used by:
 ```mermaid
 graph TD
     subgraph "Organization Operations"
-        ORG_READ[GET /api/organization/:id] --> OM[ensureOrganizationMember]
+        ORG_READ[GET /api/organization/:slug] --> OM[ensureOrganizationMember]
         ORG_LIST[GET /api/organization] --> FILTER[Repo WHERE org has member userId<br/>(query-level filter, no helper)]
         ORG_CREATE[POST /api/organization] --> OWNER_CREATION["Auto-create OWNER membership<br/>(no pre-check: user IS the creator)"]
-        ORG_UPDATE[PATCH /api/organization/:id] --> OO[ensureOrganizationOwner]
-        ORG_DELETE[DELETE /api/organization/:id] --> OO
+        ORG_UPDATE[PATCH /api/organization/:slug] --> OO[ensureOrganizationOwner]
+        ORG_DELETE[DELETE /api/organization/:slug] --> OO
     end
 
     subgraph "Project Operations"
-        PROJ_LIST[GET /organizations/:id/projects] --> OM
-        PROJ_CREATE[POST /organizations/:id/projects] --> OO
-        PROJ_READ[GET /api/project/:id] --> PM[ensureProjectMember]
-        PROJ_UPDATE[PATCH /api/project/:id] --> PMA[ensureProjectManagementAccess]
-        PROJ_DELETE[DELETE /api/project/:id] --> PMA
+        PROJ_LIST[GET /organizations/:slug/projects] --> OM
+        PROJ_CREATE[POST /organizations/:slug/projects] --> OO
+        PROJ_READ[GET /organizations/:slug/projects/:id] --> OM
+        PROJ_UPDATE[PATCH /organizations/:slug/projects/:id] --> OO
+        PROJ_DELETE[DELETE /organizations/:slug/projects/:id] --> OO
+        OM --> PO[ensureProjectInOrganization<br/>org membership is NOT enough]
+        OO --> PO
+        PO --> PROJ_RESULT[Return project or 404]
     end
 
     subgraph "API Key Operations"
@@ -158,11 +177,9 @@ This hierarchy reflects the ownership graph: **Organization owns Projects, which
 
 ## Authorization Bypass / Public Access
 
-Two areas with **no authorization** (documented for completeness):
+One area with **no session/org authorization** (documented for completeness):
 
-1. **User module endpoints** (`GET /api/user`, `GET /api/user/:id`, `GET /api/user/search`, `POST /api/user`, `PUT /api/user/:id`, `DELETE /api/user/:id`) — no auth middleware, no authorization helper, no ownership filter. Any caller can list, read, create, update, or delete any user. Whether this is intentional is unclear from the implementation — only `GET /api/user/me` is protected. See [dependency-rules.md violations section](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/docs/architecture/dependency-rules.md#violations--deviations-observed).
-
-2. **Ingestion endpoint** (`POST /api/ingestion`) — doesn't use session auth or organization-level authorization. It authenticates via API key hash, and the log is written to whichever `projectId` the key belongs to. This is by design (the Delok SDK in users' applications is the caller, not a human user).
+1. **Ingestion endpoint** (`POST /api/ingestion`) — doesn't use session auth or organization-level authorization. It authenticates via API key hash, and the log is written to whichever `projectId` the key belongs to. This is by design (the Delok SDK in users' applications is the caller, not a human user).
 
 ## Error Response on Failure
 
