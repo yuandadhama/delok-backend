@@ -69,13 +69,13 @@ Every event follows the same path: the SDK sends it to the Ingestion API, the AP
 Once published, you'll install the SDK in any application you want to monitor:
 
 ```bash
-npm install @delok/sdk
+npm install delok
 ```
 
 Initialize it with your project's API key:
 
 ```js
-import { Delok } from "@delok/sdk";
+import { Delok } from "delok";
 
 const delok = new Delok({
   apiKey: "...",
