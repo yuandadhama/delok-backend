@@ -1,14 +1,8 @@
-// /src/infrastructure/realtime/websocket.ts
+// src/infrastructure/realtime/websocket.ts
 
 import { WebSocket, WebSocketServer } from "ws";
 import { RealtimeEvent } from "./event.types";
 
-/**
- * Singleton WebSocket server instance.
- *
- * The HTTP server attaches to this instance during
- * application startup.
- */
 export const websocket = new WebSocketServer({
   noServer: true,
 });
@@ -16,10 +10,7 @@ export const websocket = new WebSocketServer({
 /**
  * Tracks which projects each connected client is subscribed to.
  *
- * Key   : WebSocket client connection
- * Value : Set of Project IDs
- *
- * A single WebSocket connection can subscribe to multiple projects.
+ * One WebSocket connection can subscribe to multiple projects.
  */
 export const subscriptions = new Map<WebSocket, Set<string>>();
 
@@ -37,16 +28,13 @@ websocket.on("connection", (socket) => {
 
         if (!projectSubscriptions) {
           projectSubscriptions = new Set<string>();
+
           subscriptions.set(socket, projectSubscriptions);
         }
 
         projectSubscriptions.add(projectId);
 
         console.info(`Client subscribed to project ${projectId}`);
-
-        console.info("Client project subscriptions:", [
-          ...projectSubscriptions,
-        ]);
       }
     } catch {
       console.warn("Invalid websocket message.");

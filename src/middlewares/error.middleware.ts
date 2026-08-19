@@ -22,6 +22,20 @@ const getErrorInfo = (error: unknown) => {
           };
         }
 
+        // Project's case-insensitive unique constraint on
+        // (organizationId, lower(name)).
+        if (
+          modelName === "Project" ||
+          (Array.isArray(target) &&
+            target.some((t: string) => t.includes("lower_name")))
+        ) {
+          return {
+            statusCode: 409,
+            errorCode: "PROJECT_NAME_ALREADY_EXISTS",
+            message: "Project name already exists in this organization",
+          };
+        }
+
         return {
           statusCode: 409,
           errorCode: "UNIQUE_CONSTRAINT_FAILED",

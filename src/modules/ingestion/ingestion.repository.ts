@@ -29,6 +29,17 @@ export const createLogEvent = async (
 };
 
 /**
+ * Count log events belonging to a project.
+ */
+export const countProjectLogs = async (projectId: string) => {
+  return prisma.logEvent.count({
+    where: {
+      projectId,
+    },
+  });
+};
+
+/**
  * Find API key by key value.
  */
 export const findApiKeyByKeyHash = async (keyHash: string) => {

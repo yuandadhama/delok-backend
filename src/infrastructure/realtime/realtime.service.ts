@@ -1,4 +1,4 @@
-// /src/infrastructure/realtime/realtime.service.ts
+// src/infrastructure/realtime/realtime.service.ts
 
 import { WebSocket } from "ws";
 
@@ -19,6 +19,13 @@ export class RealtimeService {
 
       if (
         event.type === "log.created" &&
+        !projectIds.has(event.data.projectId)
+      ) {
+        continue;
+      }
+
+      if (
+        event.type === "project.log_count.updated" &&
         !projectIds.has(event.data.projectId)
       ) {
         continue;

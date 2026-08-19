@@ -2,11 +2,14 @@
 
 import { JsonObject } from "@prisma/client/runtime/client";
 import { AppError } from "../../utils/AppError";
+
 import {
+  countProjectLogs,
   createLogEvent,
   findApiKeyByKeyHash,
   updateApiKeyLastUsedAt,
 } from "./ingestion.repository";
+
 import { sha256 } from "../../utils/hash";
 import { realtime } from "../../infrastructure/realtime/realtime.service";
 
@@ -56,9 +59,22 @@ export const createLogEventService = async (
     payload,
   );
 
+  // Notify Log Explorer subscribers with the full log event.
   realtime.emit({
     type: "log.created",
     data: createdLog,
+  });
+
+  // Get the authoritative log count for the project.
+  const logCount = await countProjectLogs(projectId);
+
+  // Notify Projects page subscribers with only the updated count.
+  realtime.emit({
+    type: "project.log_count.updated",
+    data: {
+      projectId,
+      logCount,
+    },
   });
 
   return createdLog;

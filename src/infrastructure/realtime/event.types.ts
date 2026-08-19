@@ -1,4 +1,4 @@
-// /src/infrastructure/realtime/event.types.ts
+// src/infrastructure/realtime/event.types.ts
 
 export interface LogCreatedEvent {
   id: string;
@@ -12,12 +12,19 @@ export interface LogCreatedEvent {
   payload: Record<string, unknown> | null;
 }
 
+export interface ProjectLogCountUpdatedEvent {
+  projectId: string;
+  logCount: number;
+}
+
 /**
  * Maps every realtime event to the payload
  * that will be delivered to connected clients.
  */
 export interface RealtimeEventMap {
   "log.created": LogCreatedEvent;
+
+  "project.log_count.updated": ProjectLogCountUpdatedEvent;
 
   "project.subscribe": {
     projectId: string;
