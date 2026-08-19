@@ -29,6 +29,10 @@ export interface RealtimeEventMap {
   "project.subscribe": {
     projectId: string;
   };
+
+  "project.unsubscribe": {
+    projectId: string;
+  };
 }
 
 /**

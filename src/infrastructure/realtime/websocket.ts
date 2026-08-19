@@ -42,6 +42,24 @@ websocket.on("connection", (socket) => {
 
         console.info(`Client subscribed to project ${projectId}`);
       }
+
+      if (message.type === "project.unsubscribe") {
+        const projectId = message.data.projectId;
+
+        const projectSubscriptions = subscriptions.get(socket);
+
+        if (!projectSubscriptions) {
+          return;
+        }
+
+        if (!projectSubscriptions.has(projectId)) {
+          return;
+        }
+
+        projectSubscriptions.delete(projectId);
+
+        console.info(`Client unsubscribed from project ${projectId}`);
+      }
     } catch {
       console.warn("Invalid websocket message.");
     }
