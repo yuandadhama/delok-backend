@@ -14,12 +14,14 @@ export const websocket = new WebSocketServer({
 });
 
 /**
- * Tracks which project each connected client is subscribed to.
+ * Tracks which projects each connected client is subscribed to.
  *
  * Key   : WebSocket client connection
- * Value : Project ID
+ * Value : Set of Project IDs
+ *
+ * A single WebSocket connection can subscribe to multiple projects.
  */
-export const subscriptions = new Map<WebSocket, string>();
+export const subscriptions = new Map<WebSocket, Set<string>>();
 
 websocket.on("connection", (socket) => {
   console.info("WebSocket client connected.");
@@ -29,16 +31,31 @@ websocket.on("connection", (socket) => {
       const message: RealtimeEvent = JSON.parse(rawMessage.toString());
 
       if (message.type === "project.subscribe") {
-        subscriptions.set(socket, message.data.projectId);
+        const projectId = message.data.projectId;
 
-        console.info(`Client subscribed to project ${message.data.projectId}`);
+        let projectSubscriptions = subscriptions.get(socket);
+
+        if (!projectSubscriptions) {
+          projectSubscriptions = new Set<string>();
+          subscriptions.set(socket, projectSubscriptions);
+        }
+
+        projectSubscriptions.add(projectId);
+
+        console.info(`Client subscribed to project ${projectId}`);
+
+        console.info("Client project subscriptions:", [
+          ...projectSubscriptions,
+        ]);
       }
     } catch {
       console.warn("Invalid websocket message.");
     }
   });
+
   socket.on("close", () => {
     subscriptions.delete(socket);
+
     console.info("WebSocket client disconnected.");
   });
 });
