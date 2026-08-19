@@ -3,6 +3,12 @@
 import { WebSocket, WebSocketServer } from "ws";
 import { RealtimeEvent } from "./event.types";
 
+/**
+ * Singleton WebSocket server instance.
+ *
+ * The HTTP server attaches to this instance during
+ * application startup.
+ */
 export const websocket = new WebSocketServer({
   noServer: true,
 });
