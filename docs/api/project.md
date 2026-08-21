@@ -36,7 +36,9 @@ Return all projects belonging to a specific organization.
     {
       "id": "cl...",
       "name": "My Web App",
-      "organizationId": "cl..."
+      "organizationId": "cl...",
+      "createdAt": "2026-07-15T08:00:00.000Z",
+      "updatedAt": "2026-07-15T08:00:00.000Z"
     }
   ]
 }
@@ -79,7 +81,9 @@ Create a new project inside an organization. Requires org OWNER role.
   "data": {
     "id": "cl...",
     "name": "My Web App",
-    "organizationId": "cl..."
+    "organizationId": "cl...",
+    "createdAt": "2026-07-15T08:00:00.000Z",
+    "updatedAt": "2026-07-15T08:00:00.000Z"
   }
 }
 ```
@@ -125,7 +129,9 @@ member of that other organization too.
   "data": {
     "id": "cl...",
     "name": "My Web App",
-    "organizationId": "cl..."
+    "organizationId": "cl...",
+    "createdAt": "2026-07-15T08:00:00.000Z",
+    "updatedAt": "2026-07-15T08:00:00.000Z"
   }
 }
 ```
@@ -166,7 +172,9 @@ Same Zod rules as create (trimmed, 3–100 chars).
   "data": {
     "id": "cl...",
     "name": "Renamed Project",
-    "organizationId": "cl..."
+    "organizationId": "cl...",
+    "createdAt": "2026-07-15T08:00:00.000Z",
+    "updatedAt": "2026-07-15T08:15:00.000Z"
   }
 }
 ```
@@ -203,7 +211,9 @@ Delete a project and **cascade** all ApiKeys and LogEvents. Requires org OWNER r
   "data": {
     "id": "cl...",
     "name": "Deleted Project",
-    "organizationId": "cl..."
+    "organizationId": "cl...",
+    "createdAt": "2026-07-15T08:00:00.000Z",
+    "updatedAt": "2026-07-15T08:00:00.000Z"
   }
 }
 ```

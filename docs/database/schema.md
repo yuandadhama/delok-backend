@@ -187,6 +187,8 @@ Default role inferred from migration history: `20260711061753_added_default_role
 | `id` | String | PK, `cuid()` | CUID for public URLs |
 | `name` | String | Required | Project display name |
 | `organizationId` | String | FK → Organization.id | Parent org |
+| `createdAt` | DateTime | `now()` | Creation timestamp |
+| `updatedAt` | DateTime | `@updatedAt` | Last change timestamp |
 
 **Relationships**:
 - `organization: Organization` (FK: `organizationId`, `onDelete: Cascade`)

@@ -90,6 +90,8 @@ erDiagram
         String id PK
         String name
         String organizationId FK
+        DateTime createdAt
+        DateTime updatedAt
     }
 
     ApiKey {
