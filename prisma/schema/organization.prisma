@@ -1,9 +1,11 @@
 // /prisma/schema/organization.prisma
 model Organization {
-  id String @id @default(cuid())
+  id        String   @id @default(cuid())
 
-  name String
-  slug String @unique
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   projects            Project[]
   organizationMembers OrganizationMember[]
