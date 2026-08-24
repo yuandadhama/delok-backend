@@ -26,7 +26,7 @@ Delok ships a lightweight SDK for sending structured events to a centralized bac
 
 ## Why Delok
 
-Instead of scattering `console.log` calls or ad-hoc log strings across your codebase, Delok encourages sending **structured events** — consistent, queryable, and easy to correlate across services and environments.
+Instead of scattering `console.log` calls or ad-hoc log strings across your codebase, Delok encourages sending **structured events**, consistent, queryable, and easy to correlate across services and environments.
 
 - **Drop-in SDK** — a few lines of setup, no infrastructure to run
 - **Structured by design** — every event follows the same schema
