@@ -16,14 +16,16 @@ flowchart LR
 
 ### Commands
 
-> Note: `package.json` defines **no** `prisma:*` npm scripts. Prisma is invoked directly via `npx`.
+Scripts are defined in `package.json`:
 
 | Command | Effect | When to run |
 |---------|--------|-------------|
-| `npx prisma generate` | Regenerate TypeScript Prisma Client at `src/generated/prisma/` | After any `.prisma` schema change, or after cloning the repo |
-| `npx prisma migrate dev` | Create/apply migrations against the dev DB | Iterative development: after changing schema |
+| `npm run db:generate` (= `prisma generate`) | Regenerate TypeScript Prisma Client at `src/generated/prisma/` | After any `.prisma` schema change, or after cloning the repo |
+| `npm run db:migrate:dev` (= `prisma migrate dev`) | Create/apply migrations against the dev DB | Iterative development: after changing schema |
+| `npm run db:migrate` (= `prisma migrate deploy`) | Apply pending migrations (non-interactive) | Production / CI deploy |
+| `npm run build` (= `prisma generate && tsc`) | Generate client + compile TypeScript | Build step (also used in Dockerfile) |
 
-Both commands use the multi-schema config in `prisma.config.ts` (`schema: "prisma/schema"`).
+Raw `npx prisma ...` also works; the npm scripts are wrappers. All commands use the multi-schema config in `prisma.config.ts` (`schema: "prisma/schema"`).
 
 ## Migration Storage and Configuration
 
@@ -62,7 +64,7 @@ The Prisma Client is generated into **`src/generated/prisma/`**, which is import
 import { PrismaClient } from "../generated/prisma/client";
 ```
 
-Generated files are likely gitignored (standard practice). Regenerate on new clones via `npx prisma generate`.
+Generated files are likely gitignored (standard practice). Regenerate on new clones via `npm run db:generate`.
 
 ## Migration History (Inferred from Timestamps)
 
@@ -86,6 +88,9 @@ Migrations in `prisma/migrations/` are applied in timestamp order. Each is a fol
 | 14 | 20260722140759 | `harden_api_key_model` | Final ApiKey hardening — added `@@unique([keyHash])`, `keyPrefix`, `lastUsedAt DateTime?`, `createdById FK → User ON DELETE SET NULL`, and extra indexes (`projectId`, `createdById`) for the ApiKey model as it neared production use. |
 | 15 | 20260804145420 | `update_organization` | Updated the `Organization` model as a precursor to slug support (schema/constraint adjustments). |
 | 16 | 20260804160535 | `add_organization_slug` | Added `slug` column (UNIQUE) to `organization`. Derived from `name` via `generateSlug` (lowercased, spaces → hyphens, non `[a-z0-9-]` stripped). Organizations are now addressed by slug in the API (`/api/organization/:slug`). |
+| 17 | 20260819120000 | `case_insensitive_project_name` | Replaced case-sensitive `@@unique([organizationId, name])` with case-insensitive unique index `project_organizationId_lower_name_idx` on `(organizationId, lower(name))`. Migration fails if case-insensitive duplicates exist. |
+| 18 | 20260821154043 | `add_created_at_updated_at_to_project` | Added `createdAt`/`updatedAt` to `project` (backfilled `CURRENT_TIMESTAMP`). |
+| 19 | 20260822191930 | `add_organization_timestamps` | Added `createdAt`/`updatedAt` to `organization` (backfilled `CURRENT_TIMESTAMP`). |
 
 ## Development Workflow: Adding a Schema Change
 
@@ -95,7 +100,7 @@ Migrations in `prisma/migrations/` are applied in timestamp order. Each is a fol
    - Projects/ApiKeys → `project.prisma`
    - Logging → `log-event.prisma`
    - New generator/datasource options → `schema.prisma`
-2. **Run `npx prisma migrate dev`**.
+2. **Run `npm run db:migrate:dev`** (or `npx prisma migrate dev`).
    - Prisma diffs the merged schema against the dev DB
    - Creates `<new-timestamp>_<slug>/migration.sql` in `prisma/migrations/`
    - Applies the migration to the dev DB
@@ -106,13 +111,13 @@ Migrations in `prisma/migrations/` are applied in timestamp order. Each is a fol
    - Add concurrency-safe operations (CREATE INDEX CONCURRENTLY etc.)
 4. **Commit the migration folder to Git.** The SQL file is the source of truth for all environments.
 
-## Production Deployment (Inferred Conventions)
+## Production Deployment
 
-The project does not declare an explicit `prisma migrate deploy` script, but standard Prisma practice is:
-- Dev/staging: `prisma migrate dev` (interactive, creates migrations, resets if needed)
-- Production: `prisma migrate deploy` (non-interactive, applies pending migrations in order, no client generation, no reset)
+Scripts are now declared in `package.json`:
+- Dev: `npm run db:migrate:dev` (= `prisma migrate dev`)
+- Production: `npm run db:migrate` (= `prisma migrate deploy` — non-interactive, applies pending migrations in order)
 
-You would add a deploy-time step (CI/CD) that runs `prisma migrate deploy` before releasing new application code. This uses the committed `migration.sql` files and the `_prisma_migrations` tracking table in the target DB.
+Add a deploy-time step (CI/CD) that runs `npm run db:migrate` before releasing new application code. This uses the committed `migration.sql` files and the `_prisma_migrations` tracking table in the target DB. The `Dockerfile` runs `npm run build` (`prisma generate && tsc`) at build time.
 
 ## Resetting the Development Database
 

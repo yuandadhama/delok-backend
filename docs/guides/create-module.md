@@ -301,8 +301,8 @@ Keep them grouped with related modules (team next to organization / project rout
 
 1. Pick the right domain file in `prisma/schema/` — for a team model, edit `organization.prisma` (since teams are org-scoped) or create a new `team.prisma` file.
 2. Write the Prisma model.
-3. Run `npx prisma migrate dev` to generate + apply migration.
-4. Run `npx prisma generate` to update generated types (the migrate dev command usually does this automatically, but do it explicitly if types are stale).
+3. Run `npm run db:migrate:dev` (= `npx prisma migrate dev`) to generate + apply migration.
+4. Run `npm run db:generate` (= `npx prisma generate`) to update generated types (the migrate dev command usually does this automatically, but do it explicitly if types are stale).
 5. Run `npm run type-check` to catch any type errors.
 
 ## Check Your Work Against Existing Conventions

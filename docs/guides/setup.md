@@ -6,8 +6,8 @@ Step-by-step guide to running the Delok backend locally.
 
 | Tool | Minimum Version | How to check |
 |------|-----------------|--------------|
-| Node.js | 20+ (for ES Modules + modern tsx) | `node --version` |
-| npm / pnpm / bun | Any recent | `npm --version` |
+| Node.js | 22+ (`engines.node >=22` in package.json; Docker uses `node:22-alpine`) | `node --version` |
+| npm | Any recent (lockfile `package-lock.json`) | `npm --version` |
 | PostgreSQL | 14+ (Prisma 7 support) | `psql --version` or use Supabase/Neon/etc. |
 
 The project uses:
@@ -40,13 +40,17 @@ Create a `.env` file in the repository root. The backend loads `dotenv/config` f
 | Variable | Example | Purpose |
 |----------|---------|---------|
 | `DATABASE_URL` | `postgresql://user:pass@localhost:5432/delok?schema=public` | PostgreSQL connection string. Read by Prisma via [prisma.config.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/prisma.config.ts#L12) and by `lib/prisma.ts` (adapter-pg). |
-| `PORT` | `8000` | HTTP/WebSocket port. |
-| `BETTER_AUTH_URL` | `http://localhost:8000` | Public URL of this backend (used by Better Auth for cookie/redirect logic). |
+| `PORT` | `8000` | HTTP/WebSocket port (`env.PORT`, default 8000). |
+| `BETTER_AUTH_SECRET` | `replace-with-32plus-random-string` | Session signing secret. **Throws at startup if missing.** |
+| `BETTER_AUTH_URL` | `http://localhost:8000` | Public URL of this backend (used by Better Auth `baseURL`). |
+| `FRONTEND_URL` | `http://localhost:3000` | Frontend origin — used for CORS `origin`, Better Auth `trustedOrigins`, and `errorURL`. |
 | `GOOGLE_CLIENT_ID` | `xxx.apps.googleusercontent.com` | Google OAuth client ID. **Throws at startup if missing.** |
 | `GOOGLE_CLIENT_SECRET` | `GOCSPX-...` | Google OAuth client secret. **Throws at startup if missing.** |
 | `GITHUB_CLIENT_ID` | `Iv1.abc...` | GitHub OAuth client ID. **Throws at startup if missing.** |
 | `GITHUB_CLIENT_SECRET` | `...` | GitHub OAuth client secret. **Throws at startup if missing.** |
 | `RESEND_API_KEY` | `re_...` | Resend API key for sending verification emails + password reset emails. |
+| `EMAIL_FROM` | `Delok <onboarding@resend.dev>` | Verified sender address. |
+| `NODE_ENV` | `development` | `development` / `production` / `test`. |
 
 ### OAuth Provider Setup
 
@@ -59,8 +63,8 @@ For Google and GitHub providers, configure the OAuth callback URLs in each provi
 Applies all migrations in `prisma/migrations/` to your database, in timestamp order.
 
 ```bash
-npx prisma migrate dev
-# → uses prisma.config.ts (multi-schema: prisma/schema)
+npm run db:migrate:dev
+# → prisma migrate dev, uses prisma.config.ts (multi-schema: prisma/schema)
 ```
 
 What this does:
@@ -79,7 +83,8 @@ The command runs in **dev** mode: if you edit the schema later and re-run, it wi
 The Prisma Client is output to `src/generated/prisma/` (see `output` in [schema.prisma](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/prisma/schema/schema.prisma)). You'll need this any time you change any `.prisma` file:
 
 ```bash
-npx prisma generate
+npm run db:generate
+# → prisma generate
 ```
 
 This generates TypeScript types for every model (`User`, `Organization`, `Project`, `ApiKey`, `LogEvent`, etc.) that are imported via:
@@ -145,13 +150,13 @@ The `GOOGLE_CLIENT_ID` or `GOOGLE_CLIENT_SECRET` env vars are unset. Both are va
 ### Problem: Prisma Client not found
 Error: `Cannot find module '../generated/prisma/client'`. Solution:
 ```bash
-npx prisma generate
+npm run db:generate
 ```
 
 ### Problem: CORS errors when frontend calls backend
-Default CORS config in [app.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/app.ts#L23-L30) only allows `origin: ["http://localhost:3000"]`. If your frontend runs on a different port or a deployed URL, add it to the CORS origins array.
+CORS origin is configured via `FRONTEND_URL` env var — see [app.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/app.ts#L53-L60) `origin: [env.FRONTEND_URL]` and `.env.example` `FRONTEND_URL=http://localhost:3000`. If your frontend runs on a different port or a deployed URL, set `FRONTEND_URL` accordingly.
 
-Also note: allowed headers include `x-api-key` (needed for ingestion calls). If you add new custom headers, update `allowedHeaders`.
+Allowed headers include `x-api-key` (needed for ingestion calls). If you add new custom headers, update `allowedHeaders`.
 
 ### Problem: Email sending fails (verification / password reset)
 If `RESEND_API_KEY` is missing or invalid, the `sendVerificationEmail` handler in auth.ts catches and logs the error via `delok.error()` then rethrows. You'll see the error in both the backend console AND (if the backend is sending to itself successfully) in your Delok logs.
@@ -160,12 +165,12 @@ For development you can also use Resend's test mode / sandbox. The `from` addres
 
 ---
 
-## Production Deployment Checklist (Inferred)
+## Production Deployment
 
-The project does not include a production start script or Dockerfile today. A typical production flow would be:
+The project now includes `Dockerfile` (multi-stage `builder` → `runner`, Node 22 Alpine) and npm scripts:
 
-1. **Build**: Add a `tsc -p tsconfig.json` build step (output to `dist/`)
-2. **DB migrations**: `prisma migrate deploy` (not `dev`) before starting app
-3. **Generate client**: `prisma generate` during build (after schema, before type-check)
-4. **Start**: `node dist/server.js` (or `tsx src/server.ts` is possible but slower)
-5. **Env vars**: Same as development except `BETTER_AUTH_URL` points to the production origin, OAuth apps configured with production callbacks, `DATABASE_URL` to production PostgreSQL, production Resend API key.
+1. **Build**: `npm run build` → `prisma generate && tsc` (output to `dist/`)
+2. **DB migrations**: `npm run db:migrate` (= `prisma migrate deploy`) before starting app
+3. **Start**: `npm start` → `node dist/server.js`
+4. **Docker**: `docker build -t delok-backend . && docker run -e DATABASE_URL=... -p 8000:8000 delok-backend`
+5. **Env vars**: Same as development except `BETTER_AUTH_URL` points to the production origin, `FRONTEND_URL` to production frontend, OAuth apps configured with production callbacks, `DATABASE_URL` to production PostgreSQL, production `RESEND_API_KEY` and `EMAIL_FROM`.

@@ -111,10 +111,14 @@ realtime.emit({
 
 This sends the full `createdLog` payload to all WebSocket clients subscribed to `projectId`. See [realtime.md](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/docs/backend/realtime.md).
 
+### Rate Limiting
+
+`ingestionRateLimiter` ([ingestion-rate-limit.middleware.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/middlewares/rate-limit/ingestion-rate-limit.middleware.ts)) runs **before** validation: `120 req/min` per `x-api-key` prefix (first 20 chars) or fallback per IP (`ipKeyGenerator`), window `60s`. On breach → `429 RATE_LIMIT_EXCEEDED` via `errorResponse` (`errorDetail` shape).
+
 ### Performance Notes
 - **`lastUsedAt` throttled update**: Only writes to `ApiKey` row if >5 minutes since last write. Prevents a DB UPDATE on every single ingestion (which would double write load for high-volume ingestors).
-- **INSERT + broadcast are sequential, not batched**: This endpoint accepts one log event per request. Unable to determine from current implementation whether a batch endpoint exists (no batch route found in code).
-- **Key lookup uniqueness**: `keyHash` has a `@unique` DB constraint → single-row lookup is O(1) via B-tree; no hash join or scan needed.
+- **INSERT + broadcasts are sequential, not batched**: This endpoint accepts one log event per request. After insert, service emits **two** realtime events: `log.created` (full log) + `project.log_count.updated` (count only).
+- **Key lookup uniqueness**: `keyHash` has a `@unique` DB constraint → single-row lookup is O(1) via B-tree.
 - **Indexes on log_event**: `[projectId, occurredAt]` supports the listing query pattern; `[projectId, level]` supports level filtering.
 
 ### Error Responses
@@ -125,7 +129,8 @@ This sends the full `createdLog` payload to all WebSocket clients subscribed to 
 | Key hash not in DB (wrong/unknown key) | 401 | **`INVALID_API_KEY`** | `Invalid API key` |
 | Key exists but revoked (`revokedAt` set) | 401 | UNKNOWN_ERROR | `API Key already revoked` |
 | Body validation (missing field, bad date) | 400 | — | Zod `issues` array shape (validate middleware direct response) |
-| Body too large? | Unable to determine from current implementation — `express.json()` default limit (100KB) applies; no explicit `limit` option set in app.ts |
+| Rate limit exceeded (120/min per key) | 429 | RATE_LIMIT_EXCEEDED | `Too many ingestion requests` (via `errorDetail` shape) |
+| Body too large | 413 | PAYLOAD_TOO_LARGE | `Request body too large` (`express.json({ limit: "1mb" })` in app.ts) |
 
 ### Route / Service / Repository Locations
 

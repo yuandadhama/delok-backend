@@ -90,6 +90,9 @@ flowchart LR
 | Error kind                                            | statusCode | errorCode             | message exposed?                                                      |
 | ----------------------------------------------------- | ---------- | --------------------- | --------------------------------------------------------------------- |
 | `AppError("Invalid API key", 401, "INVALID_API_KEY")` | 401        | INVALID_API_KEY       | ✅ Yes                                                                |
+| Prisma `P2002` on `Organization.slug` | 409 | ORGANIZATION_SLUG_ALREADY_EXISTS | ✅ Yes (`"Organization slug already exists"`) |
+| Prisma `P2002` on `Project` case-insensitive name | 409 | PROJECT_NAME_ALREADY_EXISTS | ✅ Yes (`"Project name already exists in this organization"`) |
+| Body too large (`express.json` limit 1mb, `entity.too.large` / 413) | 413 | PAYLOAD_TOO_LARGE | ✅ Yes (`"Request body too large"`) |
 | Generic `new Error("oops")` or any unhandled          | 500        | INTERNAL_SERVER_ERROR | ❌ No (returns generic message — internal details hidden from client) |
 | Unknown non-Error thrown (string, object, etc.)       | 500        | INTERNAL_SERVER_ERROR | ❌ No                                                                 |
 
@@ -145,27 +148,18 @@ And a fourth shape from the rate limiter (uses `errorResponse` helper):
 
 Each is used in a different layer, so clients need to check for each.
 
-## Self-Monitoring: Logging Errors to Delok
+## Operational Logging (Console)
 
-The errorMiddleware calls `errorLogger(error, errorCode, req)` from [lib/delok.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/lib/delok.ts#L10-L26):
+`errorMiddleware` logs 5xx errors to `console.error` as JSON (no Delok SDK self-monitoring in current implementation):
 
 ```typescript
-export const errorLogger = async (
-  error: Error,
-  errorCode: string,
-  req: Request,
-) => {
-  await delok.error({
-    event: errorCode,
-    message: error.message,
-    payload: { method: req.method, path: req.path, stack: error.stack },
-  });
-};
+// middlewares/error.middleware.ts:87
+if (error instanceof Error && statusCode >= 500) {
+  console.error(JSON.stringify({ event: errorCode, message: error.message, method: req.method, path: req.path, stack: error.stack }));
+}
 ```
 
-This sends the error back into the Delok platform itself — the backend uses its own log ingestion product for self-monitoring. The full stack trace, HTTP method, and path are captured as payload. The `event` field is the normalized `errorCode` from the error middleware (e.g. `INTERNAL_SERVER_ERROR` for generic errors, or the AppError / Prisma errorCode for domain errors) rather than a hard-coded event name.
-
-Additionally, authorization failures are logged via `delok.warn()` in the authorization helpers (not in errorMiddleware), and auth events (password reset sent, verification email sent/failed) are logged via `delok.info()` / `delok.error()` in the auth module config.
+`lib/delok.ts` does not exist in the current codebase; there is no `errorLogger`/`delok.*` singleton. Authorization helpers currently throw `AppError("Forbidden",403)` without additional audit logging.
 
 ## `errorResponse` Utility
 

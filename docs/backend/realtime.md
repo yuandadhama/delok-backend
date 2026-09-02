@@ -62,13 +62,16 @@ Current events:
 File: [websocket.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/infrastructure/realtime/websocket.ts)
 
 Responsibilities:
-- Singleton `WebSocketServer` instance with `noServer: true` — the HTTP upgrade listener in [server.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/server.ts#L13-L17) manually routes upgrade events to it
-- `subscriptions: Map<WebSocket, string>` — in-memory map from each client connection to the project ID they're subscribed to. **A client can be subscribed to at most one project at a time** (value is a single string, not an array).
-- `connection` handler: logs client connect/disconnect
-- `message` handler: parses JSON → if `type === "project.subscribe"`, calls `subscriptions.set(socket, data.projectId)`. Invalid JSON is caught and logged as warning but does not disconnect the socket.
-- `close` handler: removes client from subscriptions map
+- Singleton `WebSocketServer` instance with `noServer: true` — the HTTP upgrade listener in [server.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/server.ts) manually routes upgrade events to it after session authentication
+- `subscriptions: Map<WebSocket, Set<string>>` — in-memory map from each client connection to the **set of project IDs** they're subscribed to. A client can subscribe to **up to 10 projects** per socket (`MAX_SUBSCRIPTIONS_PER_SOCKET = 10`).
+- `socketUsers: WeakMap<WebSocket, string>` — authenticated user ID per socket, set by the upgrade handler in `server.ts`
+- `connection` handler: logs connect/disconnect, initializes heartbeat (`isAlive` + `pong` listener)
+- `message` handler: parses JSON → validates against `subscribeSchema` (`project.subscribe`) or `unsubscribeSchema` (`project.unsubscribe`) via Zod `safeParse`. On `subscribe`: checks `ensureProjectMember(projectId, userId)` (403 → `FORBIDDEN` error frame if not a member), enforces limit (→ `LIMIT_EXCEEDED`), then `Set.add(projectId)`. On `unsubscribe`: `Set.delete(projectId)`. Invalid/unknown messages → `{ type: "error", error: { code, message } }` frame.
+- `close`/`error` handler: removes client from both `subscriptions` and `socketUsers`
+- Heartbeat: `setInterval` every 30s pings clients; terminates sockets that did not pong (detects stale connections)
+- Rate limiting on WS messages: not implemented; a client can send subscribe storms up to the 10-project cap
 
-**Important**: There is **no authentication on the WebSocket connection itself**. Any client that can open a TCP connection to the WS port and send a `project.subscribe` message with a valid-looking project ID will receive all log events for that project. Authentication for WS is not implemented in the current version. Whether this is intentional is not determined from the code.
+**Authentication on WebSocket**: Upgrade is authenticated. [server.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/server.ts) calls `auth.api.getSession({ headers: fromNodeHeaders(request.headers) })` before `handleUpgrade`; if no session, it writes `401 Unauthorized` and destroys the socket. After upgrade, `socketUsers` stores `session.user.id` and subscription handling additionally checks `ensureProjectMember` before accepting a project ID.
 
 ### `realtime.service.ts` — Broadcast Service
 
@@ -80,10 +83,11 @@ Singleton `RealtimeService` class with a single method:
 export class RealtimeService {
   emit(event: RealtimeEvent) {
     const payload = JSON.stringify(event);
-    for (const [client, projectId] of subscriptions) {
+    for (const [client, projectIds] of subscriptions) {
       if (client.readyState !== WebSocket.OPEN) continue;
-      if (event.type === "log.created" && projectId !== event.data.projectId) continue;
-      client.send(payload);
+      if (event.type === "log.created" && !projectIds.has(event.data.projectId)) continue;
+      if (event.type === "project.log_count.updated" && !projectIds.has(event.data.projectId)) continue;
+      try { client.send(payload); } catch { /* ignore per-client failures */ }
     }
   }
 }
@@ -91,58 +95,58 @@ export class RealtimeService {
 
 Broadcast logic:
 1. Serializes the event once (not per client) for efficiency
-2. Iterates the entire `subscriptions` Map from `websocket.ts` (direct import, coupling between the files but accepted in exchange for simplicity)
-3. Skips clients whose readyState is not `OPEN` (handles half-closed sockets without crashing)
-4. For `log.created` events: only sends to clients whose subscribed `projectId` matches the event's `projectId` (multicast isolation between projects)
+2. Iterates the entire `subscriptions` Map from `websocket.ts`
+3. Skips clients whose readyState is not `OPEN`
+4. For `log.created` and `project.log_count.updated` events: only sends to clients whose subscribed `Set` contains the event's `projectId`
+5. Per-client `send()` is try/caught — one dead socket does not abort broadcast to others
 
 ### Connection: server.ts Upgrade Hook
 
-In [server.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/server.ts#L13-L17):
+In [server.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/server.ts):
 
 ```typescript
-server.on("upgrade", (request, socket, head) => {
+server.on("upgrade", async (request, socket, head) => {
+  const session = await auth.api.getSession({ headers: fromNodeHeaders(request.headers as any) });
+  if (!session?.user?.id) { socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n"); socket.destroy(); return; }
   websocket.handleUpgrade(request, socket, head, (client) => {
+    socketUsers.set(client, session.user.id);
+    (client as any).userId = session.user.id;
     websocket.emit("connection", client, request);
   });
 });
 ```
 
-**All** HTTP upgrade requests go to the WebSocket server. There is no path-based routing for WS (e.g., connecting to `ws://host/ws/projectId` vs root). The connection is upgraded regardless of URL, and subscription is done via the in-band message instead.
+Upgrade is rejected with 401 if no Better Auth session. No path-based WS routing — subscription is done via in-band `project.subscribe` message after connection.
 
 ## Emitter: Ingestion Service
 
-The *only* producer of realtime events today is the ingestion service.
+Ingestion is the producer of realtime events.
 
-From [ingestion.service.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/modules/ingestion/ingestion.service.ts#L59-L62):
+From [ingestion.service.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/modules/ingestion/ingestion.service.ts):
 
 ```typescript
 const createdLog = await createLogEvent(...);
-realtime.emit({
-  type: "log.created",
-  data: createdLog,
-});
+realtime.emit({ type: "log.created", data: createdLog });
+const logCount = await countProjectLogs(projectId);
+realtime.emit({ type: "project.log_count.updated", data: { projectId, logCount } });
 ```
 
-The event is emitted **after** the log is persisted to the database (sequential: DB write first, emit second). This means:
-- Any client receiving the event can trust the log exists (event ordering matches persistence)
-- If the DB write succeeds but broadcast fails (e.g., socket error mid-send), the log is not lost — it will be returned by the paginated logs REST API on next page load.
+Two emits per ingestion, both **after** the DB write (sequential: DB write first, emit second):
+- `log.created` — full log payload for Log Explorer views
+- `project.log_count.updated` — count-only update for Projects page subscribers (avoids re-fetching)
 
-## WebSocket Test Page
+If the DB write succeeds but broadcast fails, the log is not lost — it is returned by the paginated REST endpoint.
 
-The root path `/` of the backend serves a small HTML page ([app.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/app.ts#L71-L94)) that:
-- Connects to `ws://localhost:8000` via browser WebSocket API
-- Logs connect/disconnect/error events to console
+## Operational Endpoints (app.ts)
 
-This is intended as a development sanity check to confirm the WS server is listening. It does not send a `project.subscribe` message, so the page will not receive any `log.created` events on its own.
+`app.ts:91` exposes `GET /health` (`{ status: "ok", uptime }`), `GET /readiness` (DB `SELECT 1` → `ready` or `503 db_unavailable`), and `GET /` (`{ status: "ok", service: "delok-backend" }` JSON — not an HTML test page). WebSocket connectivity is verified by completing the authenticated upgrade, not by loading `/`.
 
 ## Current Limitations (Inferred from Code)
 
-All of these are descriptions of the current implementation, not suggestions for change:
-
-1. **Single-project subscription per socket**: The `subscriptions` Map stores `socket → projectId` (one project). To subscribe to multiple projects a client needs multiple WebSocket connections.
-2. **No WS authentication**: Connecting and subscribing requires no credentials. Whether this is acceptable for the threat model is not determined from code.
-3. **No persistence / replay**: A browser connecting after a log was ingested will not receive past events; only live events going forward are broadcast. Historical data is available via the paginated REST endpoint instead.
-4. **In-memory only subscriptions map**: The map lives in process memory. If the backend process restarts, all clients are disconnected and must reconnect + re-subscribe. Multi-instance deployments would not share subscription state.
-5. **No heartbeat / ping-pong**: There is no application-level keep-alive. Idle connections may be dropped by proxies without detection.
-6. **No error handling on `client.send`**: If `send()` throws (e.g., dead socket), the error is not caught in `emit()`.
-7. **No rate limiting on WebSocket messages**: A misbehaving client can send arbitrary `project.subscribe` message storms without rate restriction on the WS side.
+1. **Multi-project per socket, capped at 10**: `Set<string>` with `LIMIT_EXCEEDED` error on overflow.
+2. **WS authentication + per-project authorization**: Upgrade requires Better Auth session; each `project.subscribe` additionally checks `ensureProjectMember` (member/owner of parent org). Unauthenticated or unauthorized subscribes receive an `error` frame.
+3. **No persistence / replay**: Only live events after subscribe are broadcast; historical data via REST.
+4. **In-memory subscriptions**: Process-local `Map`/`WeakMap`; restart drops state; multi-instance not shared.
+5. **Heartbeat via ws ping/pong**: 30s interval terminates stale sockets (`isAlive` flag).
+6. **Per-client send is isolated**: `try/catch` around `client.send` prevents one failure from aborting others.
+7. **No rate limiting on WS messages** beyond the 10-subscription cap.

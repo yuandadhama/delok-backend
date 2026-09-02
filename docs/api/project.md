@@ -67,7 +67,7 @@ Create a new project inside an organization. Requires org OWNER role.
 
 | Field  | Zod rule                              |
 | ------ | ------------------------------------- |
-| `name` | Required string, trimmed, 3–100 chars |
+| `name` | Required string, trimmed, 3–100 chars; case-insensitive unique per organization (DB index `project_organizationId_lower_name_idx` on `lower(name)`, migration `20260819120000`) — duplicate (case-insensitive) returns `409` via `P2002` |
 
 ### Authorization
 

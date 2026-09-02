@@ -77,6 +77,8 @@ erDiagram
         String id PK
         String name
         String slug UK
+        DateTime createdAt
+        DateTime updatedAt
     }
 
     OrganizationMember {
@@ -141,6 +143,7 @@ erDiagram
 ### Organization ↔ Project (1:N, Cascade Delete)
 - **Cardinality**: One org has 0..N projects; a project belongs to exactly one org (project cannot be shared between orgs).
 - **Delete rule**: `onDelete: Cascade` — deleting an organization also deletes all its projects, all projects' API keys, and all projects' log events. This is the widest cascade in the system.
+- **Uniqueness**: Case-insensitive unique index `project_organizationId_lower_name_idx` on `(organizationId, lower(name))` (migration `20260819120000`). Names differing only by case are duplicates within the same org.
 
 ### Project ↔ ApiKey (1:N, Cascade Delete)
 - **Cardinality**: One project has 0..N API keys. A key belongs to exactly one project.

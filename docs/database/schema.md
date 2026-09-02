@@ -133,6 +133,8 @@ Note: Better Auth manages all rows in this table; custom code does not write to 
 | `id` | String | PK, `cuid()` | CUID for URL-friendly, collision-resistant IDs |
 | `name` | String | Required | Organization display name (used to derive `slug`) |
 | `slug` | String | Required, `@unique` | URL identifier; derived from `name` via `generateSlug` (lowercased, spaces → hyphens, non `[a-z0-9-]` stripped) |
+| `createdAt` | DateTime | `now()` | Creation timestamp (added 20260822191930) |
+| `updatedAt` | DateTime | `@updatedAt` | Last change timestamp (added 20260822191930) |
 
 **Relationships**:
 - `projects: Project[]` — all projects in this org (Cascade delete: deleting org removes all projects)
@@ -194,6 +196,9 @@ Default role inferred from migration history: `20260711061753_added_default_role
 - `organization: Organization` (FK: `organizationId`, `onDelete: Cascade`)
 - `apiKeys: ApiKey[]` — all API keys for this project
 - `logEvents: LogEvent[]` — all logs received for this project
+
+**Constraints**:
+- Case-insensitive uniqueness on `(organizationId, lower(name))` via raw index `project_organizationId_lower_name_idx` (migration `20260819120000_case_insensitive_project_name`). Two projects in the same org cannot share a name differing only by case. The constraint is enforced at the DB level (not in `project.prisma`/`project.validation.ts`); duplicate returns Prisma `P2002`.
 
 ---
 

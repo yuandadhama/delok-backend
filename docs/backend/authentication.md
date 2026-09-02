@@ -4,24 +4,33 @@ Delok uses **Better Auth** (`better-auth` v1.6.23) as its authentication framewo
 
 ## Better Auth Integration
 
-Better Auth is configured in [lib/auth.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/lib/auth.ts) as a singleton. Key configuration:
+Better Auth is configured in [lib/auth.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/lib/auth.ts) as a singleton. Key configuration (values from `lib/env.ts` validated via Zod):
 
 | Setting | Value | Purpose |
 |---------|-------|---------|
-| `baseURL` | `process.env.BETTER_AUTH_URL` | Where the backend auth API lives (used for cookie scoping etc.) |
-| `trustedOrigins` | `["http://localhost:3000"]` | Frontend origin allowed to receive auth cookies |
+| `baseURL` | `env.BETTER_AUTH_URL` | Where the backend auth API lives (used for cookie scoping etc.) |
+| `trustedOrigins` | `[env.FRONTEND_URL]` | Frontend origin allowed to receive auth cookies (dynamic, not hardcoded) |
 | `database` | `prismaAdapter(prisma, { provider: "postgresql" })` | Store users/sessions/accounts in PostgreSQL |
-| `onAPIError.errorURL` | `http://localhost:3000/auth/error` | Frontend redirect target for auth errors |
+| `onAPIError.errorURL` | `` `${env.FRONTEND_URL}/auth/error` `` | Frontend redirect target for auth errors |
+| `secret` | `env.BETTER_AUTH_SECRET` | Session signing secret |
 
 ### Required Environment Variables
 
-Better Auth requires these OAuth environment variables to be set at startup (the module throws if missing):
+Validated at startup in [lib/env.ts](file:///c:/Users/Yuan/OneDrive/Desktop/Codes/Delok/delok-backend/src/lib/env.ts) (Zod `envSchema` — fail-fast throw if any missing):
 
 ```
+DATABASE_URL            # PostgreSQL connection string
+BETTER_AUTH_SECRET      # Session signing secret
+BETTER_AUTH_URL         # Public backend URL (e.g. http://localhost:8000) — used for baseURL
+FRONTEND_URL            # Frontend origin (e.g. http://localhost:3000) — used for trustedOrigins/errorURL/CORS
+RESEND_API_KEY          # Resend transactional email key
+EMAIL_FROM              # Verified sender address
 GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET
 GITHUB_CLIENT_ID
 GITHUB_CLIENT_SECRET
+PORT                    # optional, default 8000
+NODE_ENV                # development | production | test, default development
 ```
 
 ### Password Auth (`emailAndPassword`)
@@ -31,14 +40,13 @@ GITHUB_CLIENT_SECRET
 - Additional complexity enforced via custom hook (see below)
 - `requireEmailVerification: true` — users must verify email before actions (actual enforcement of this flag is Better Auth's own logic)
 
-**Password reset email** is sent via Resend with a Delok-branded template. When the reset email is dispatched, the backend also logs an audit event (`auth.password_reset.sent`) to itself via the Delok SDK (self-monitoring dogfooding).
+**Password reset email** is sent via Resend with a Delok-branded template (`lib/auth.ts:32` `sendResetPassword` → `email.service.ts`).
 
 ### Email Verification
 
 - `sendOnSignIn: true` — Better Auth will re-send a verification email if an unverified user signs in
-- Custom URL rewrite: the verification link's `callbackURL` is set to `http://localhost:3000/sign-up/verified` so the frontend controls the post-verification UX
-- Email send failure is logged via `delok.error` with `auth.email_verification.failed` event
-- Successful send is logged via `delok.info` with `auth.email_verification.sent` event
+- Custom URL rewrite: the verification link's `callbackURL` is set to `` `${env.FRONTEND_URL}/sign-up/verified` `` so the frontend controls the post-verification UX
+- Email send failure is thrown after logging inside `email.service` (no Delok self-monitoring SDK in current code)
 
 ### Social Providers
 
