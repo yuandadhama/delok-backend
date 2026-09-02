@@ -2,7 +2,6 @@
 
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../utils/AppError";
-import { errorLogger } from "../lib/delok";
 import { Prisma } from "@prisma/client";
 
 const getErrorInfo = (error: unknown) => {
@@ -53,6 +52,15 @@ const getErrorInfo = (error: unknown) => {
   }
 
   if (error instanceof Error) {
+    // Handle body-parser 413
+    const anyErr = error as any;
+    if (anyErr?.status === 413 || anyErr?.type === "entity.too.large") {
+      return {
+        statusCode: 413,
+        errorCode: "PAYLOAD_TOO_LARGE",
+        message: "Request body too large",
+      };
+    }
     return {
       statusCode: 500,
       errorCode: "INTERNAL_SERVER_ERROR",
@@ -75,7 +83,18 @@ export const errorMiddleware = async (
 ) => {
   const { statusCode, errorCode, message } = getErrorInfo(error);
 
-  errorLogger(error as Error, errorCode, req);
+  // Independent operational logging — no recursive ingestion
+  if (error instanceof Error && statusCode >= 500) {
+    console.error(
+      JSON.stringify({
+        event: errorCode,
+        message: error.message,
+        method: req.method,
+        path: req.path,
+        stack: error.stack,
+      }),
+    );
+  }
 
   res.status(statusCode).json({
     success: false,

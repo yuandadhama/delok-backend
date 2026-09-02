@@ -1,6 +1,5 @@
 // /src/modules/organization/organization.authorization.ts
 
-import { delok } from "../../lib/delok";
 import { AppError } from "../../utils/AppError";
 import {
   findOrganizationBySlugForMember,
@@ -17,14 +16,13 @@ export const ensureOrganizationMember = async (
   const organization = await findOrganizationBySlugForMember(slug, userId);
 
   if (!organization) {
-    await delok.warn({
-      event: "organization.access_denied",
-      message: "User is not a member of organization",
-      payload: {
+    console.warn(
+      JSON.stringify({
+        event: "organization.access_denied",
         userId,
         slug,
-      },
-    });
+      }),
+    );
     throw new AppError("Forbidden", 403, "organization.access_denied");
   }
 
@@ -44,13 +42,13 @@ export const ensureOrganizationOwner = async (slug: string, userId: string) => {
   const member = await findOwnerMembership(slug, userId);
 
   if (!member) {
-    await delok.warn({
-      event: "User try to access owner feature",
-      payload: {
+    console.warn(
+      JSON.stringify({
+        event: "organization.owner_access_denied",
         userId,
         slug,
-      },
-    });
+      }),
+    );
     throw new AppError("Forbidden", 403, "organization.owner_access_denied");
   }
 

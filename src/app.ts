@@ -2,7 +2,11 @@
 
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import { randomUUID } from "node:crypto";
 
+import { env } from "./lib/env";
+import { prisma } from "./lib/prisma";
 import { userRoute } from "./modules/user/user.route";
 import { errorMiddleware } from "./middlewares/error.middleware";
 import { toNodeHandler } from "better-auth/node";
@@ -18,26 +22,44 @@ import { authRoute } from "./modules/auth/auth.route";
 
 export const app = express();
 
-//configure cors middleware
+// Trust proxy: required for correct req.ip behind reverse proxy (rate limiting, logging)
+// Single proxy (Caddy/Nginx/Cloud) — change to number if multi-hop
+app.set("trust proxy", 1);
+
+app.use(helmet());
+
+// Request ID + lightweight structured logging (no bodies)
+app.use((req, res, next) => {
+  const id = randomUUID();
+  (req as any).id = id;
+  res.setHeader("x-request-id", id);
+  const start = Date.now();
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    console.info(
+      JSON.stringify({
+        method: req.method,
+        path: req.originalUrl,
+        status: res.statusCode,
+        duration,
+        requestId: id,
+      }),
+    );
+  });
+  next();
+});
+
+// CORS — explicit origin from env, never * with credentials
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: [env.FRONTEND_URL],
     methods: ["GET", "POST", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
     credentials: true,
   }),
 );
 
-app.use(express.json());
-
-/**
- * Route level logger
- */
-app.use((req, res, next) => {
-  console.info(`[${req.method}] ${req.originalUrl}`);
-  console.log(`req.body: ${JSON.stringify(req.body)}`);
-  next();
-});
+app.use(express.json({ limit: "1mb" }));
 
 // auth route better auth setting
 app.use("/api/auth", authRateLimiter);
@@ -65,30 +87,22 @@ app.use("/api/projects/:projectId/logs", projectLogEventRoute);
 app.use("/api/projects/:projectId/api-keys", projectApiKeyRoute);
 app.use("/api/api-key", apiKeyRoute);
 
-// route to test if server run already
-app.get("/", (req, res) => {
-  res.send(`<!DOCTYPE html>
-<html>
-  <body>
-    <h1>WebSocket Test</h1>
+// Operational endpoints
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok", uptime: process.uptime() });
+});
 
-    <script>
-      const socket = new WebSocket("ws://localhost:8000");
+app.get("/readiness", async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: "ready" });
+  } catch {
+    res.status(503).json({ status: "unavailable", reason: "db_unavailable" });
+  }
+});
 
-      socket.onopen = () => {
-        console.log("Connected!");
-      };
-
-      socket.onclose = () => {
-        console.log("Disconnected!");
-      };
-
-      socket.onerror = (err) => {
-        console.error(err);
-      };
-    </script>
-  </body>
-</html>`);
+app.get("/", (_req, res) => {
+  res.json({ status: "ok", service: "delok-backend" });
 });
 
 app.use(errorMiddleware);

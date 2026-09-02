@@ -31,7 +31,11 @@ export class RealtimeService {
         continue;
       }
 
-      client.send(payload);
+      try {
+        client.send(payload);
+      } catch {
+        // ignore send failures for individual clients
+      }
     }
   }
 }

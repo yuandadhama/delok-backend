@@ -4,9 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
     "dev": "tsx watch src/server.ts",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "build": "prisma generate && tsc",
+    "start": "node dist/server.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev"
   },
   "keywords": [],
   "author": "",
@@ -17,11 +22,10 @@
     "@prisma/client": "^7.8.0",
     "better-auth": "^1.6.23",
     "cors": "^2.8.6",
-    "crypto": "^1.0.1",
-    "delok": "file:../delok-sdk/delok-0.1.0.tgz",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.6.0",
+    "helmet": "^8.3.0",
     "pg": "^8.22.0",
     "resend": "^6.17.1",
     "ws": "^8.21.1",
@@ -31,10 +35,13 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.0.1",
+    "@types/supertest": "^7.2.1",
     "@types/ws": "^8.18.1",
     "prisma": "^7.9.1",
+    "supertest": "^7.2.2",
     "tsx": "^4.22.4",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.11"
   },
   "allowScripts": {
     "prisma@7.8.0": true,
