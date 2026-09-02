@@ -14,8 +14,10 @@ type SendEmailParams = {
   subject: string;
   html: string;
   text: string;
-  type: string;
+  type: "verification" | "password_reset";
 };
+
+type ResendResult = Awaited<ReturnType<typeof resend.emails.send>>;
 
 function redactEmail(email: string): string {
   const [local, domain] = email.split("@");
@@ -27,30 +29,42 @@ function redactEmail(email: string): string {
 async function sendEmailWithTimeout(params: SendEmailParams): Promise<void> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10_000);
-  timeout.unref?.();
+  // Prevent timeout keeping process alive
+  if (typeof timeout === "object" && "unref" in timeout) {
+    (timeout as unknown as { unref: () => void }).unref();
+  }
+
+  const start = Date.now();
+  let providerMessage: string | undefined;
 
   try {
-    const start = Date.now();
-    // Resend SDK doesn't natively support AbortSignal in all versions,
-    // but we race with a timeout rejection to avoid indefinite hang.
-    const sendPromise = resend.emails.send({
-      from: env.EMAIL_FROM,
-      to: params.to,
-      subject: params.subject,
-      html: params.html,
-      text: params.text,
-    });
+    // Pass AbortSignal so underlying fetch (if supported) is actually cancelled.
+    // Resend SDK forwards `...options` to fetch: fetch(url, { ...options, signal }).
+    // If the SDK version does not support signal, the application-level timeout race still bounds execution.
+    const sendPromise = resend.emails.send(
+      {
+        from: env.EMAIL_FROM,
+        to: params.to,
+        subject: params.subject,
+        html: params.html,
+        text: params.text,
+      },
+      { signal: controller.signal } as Record<string, unknown>,
+    );
 
     const timeoutPromise = new Promise<never>((_, reject) => {
-      controller.signal.addEventListener("abort", () => reject(new Error("Email send timeout")));
+      controller.signal.addEventListener("abort", () =>
+        reject(new Error("Email send timeout")),
+      );
     });
 
-    const result: any = await Promise.race([sendPromise, timeoutPromise]);
+    const result = (await Promise.race([sendPromise, timeoutPromise])) as ResendResult;
 
     clearTimeout(timeout);
 
     if (result?.error) {
-      throw new Error(result.error.message || "Email provider error");
+      providerMessage = result.error.message || "Email provider error";
+      throw new Error(providerMessage);
     }
 
     const duration = Date.now() - start;
@@ -64,17 +78,26 @@ async function sendEmailWithTimeout(params: SendEmailParams): Promise<void> {
     );
   } catch (error) {
     clearTimeout(timeout);
-    const message = error instanceof Error ? error.message : "Unknown email error";
-    // Never log token/URL — only type + redacted recipient + error message (no stack with tokens)
+    const rawMessage = error instanceof Error ? error.message : "Unknown email error";
+    providerMessage = providerMessage ?? rawMessage;
+
+    // Never log token/URL — only type + redacted recipient + provider message
     console.error(
       JSON.stringify({
         event: "email.failed",
         type: params.type,
         to: redactEmail(params.to),
-        error: message,
+        error: providerMessage,
       }),
     );
-    throw error;
+
+    // Sanitize error for client: do not leak provider internals, tokens, or API keys
+    const sanitized =
+      params.type === "verification"
+        ? "Failed to send verification email. Please try again later."
+        : "Failed to send password reset email. Please try again later.";
+
+    throw new Error(sanitized);
   }
 }
 
