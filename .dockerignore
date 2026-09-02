@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+.git
+.gitignore
+.vscode
+.idea
+*.log
+*.tsbuildinfo
+.env
+.env.local
+.env.development
+.env.production
+prisma/dev.db*
