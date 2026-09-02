@@ -1,8 +1,6 @@
 # Delok Backend
 
-**Delok** is an observability platform for collecting, storing, searching, and streaming structured application logs. This repository is the **backend service** — it owns authentication, organization/project management, API-key-scoped log ingestion, PostgreSQL persistence, and authenticated WebSocket realtime delivery to the Delok dashboard.
-
-> **Status:** Under active development. The Delok SDK (`delok` npm package) is feature-complete but not yet published; the frontend and backend are not yet deployed.
+**Delok** is a log monitoring platform for collecting, storing, searching, and streaming structured application logs. This repository is the **backend service** — it owns authentication, organization/project management, API-key-scoped log ingestion, PostgreSQL persistence, and authenticated WebSocket realtime delivery to the Delok dashboard.
 
 ## Overview
 
