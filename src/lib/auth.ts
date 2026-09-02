@@ -3,10 +3,13 @@
 import { APIError, betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
-import { resend } from "./resend";
 import { createAuthMiddleware } from "better-auth/api";
 import { passwordSchema } from "../features/auth/auth.schema";
 import { env } from "./env";
+import {
+  sendVerificationEmail as sendVerificationEmailService,
+  sendPasswordResetEmail as sendPasswordResetEmailService,
+} from "../infrastructure/email/email.service";
 
 export const auth = betterAuth({
   baseURL: env.BETTER_AUTH_URL,
@@ -26,32 +29,17 @@ export const auth = betterAuth({
     maxPasswordLength: 128,
     requireEmailVerification: true,
 
-    // reset password setup
     sendResetPassword: async ({ user, url }) => {
-      await resend.emails.send({
-        from: "Delok <onboarding@resend.dev>",
-        to: user.email,
-        subject: "Reset Password",
-        html: /* html */ `
-        <h1>Reset Password</h1>
-
-        <p>Hi ${user.name},</p>
-        <p>Click the link below to reset your password:</p>
-        <br />
-        <br />
-        <br />
-        <a href="${url}">
-          Reset Password
-        </a>
-      `,
-      });
-
-      console.info(
-        JSON.stringify({
-          event: "auth.password_reset.sent",
-          userId: user.id,
-        }),
-      );
+      try {
+        await sendPasswordResetEmailService({
+          to: user.email,
+          name: user.name,
+          resetUrl: url,
+        });
+      } catch (error) {
+        // Error already logged inside email.service (without token)
+        throw error;
+      }
     },
   },
 
@@ -70,50 +58,23 @@ export const auth = betterAuth({
   },
 
   emailVerification: {
-    // verification email setup
     sendVerificationEmail: async ({ user, url }) => {
       const verifyUrl = new URL(url);
-
       verifyUrl.searchParams.set(
         "callbackURL",
         `${env.FRONTEND_URL}/sign-up/verified`,
       );
 
       try {
-        const response = await resend.emails.send({
-          from: "Delok <onboarding@resend.dev>",
+        await sendVerificationEmailService({
           to: user.email,
-          subject: "Verify your email",
-          html: /* html */ `
-          <div>  
-          <h1>Verify your email</h1>
-          <p>Hi ${user.name},</p>
-          <p>Click <a href="${verifyUrl.toString()}">here</a> to verify your email.</p>
-          </div>
-          `,
+          name: user.name,
+          verifyUrl: verifyUrl.toString(),
         });
-
-        if (response.error) {
-          throw new Error(response.error.message);
-        }
       } catch (error) {
-        console.error(
-          JSON.stringify({
-            event: "auth.email_verification.failed",
-            userId: user.id,
-            error: error instanceof Error ? error.message : "Unknown error",
-          }),
-        );
-
+        // Error already logged inside email.service (without token)
         throw error;
       }
-
-      console.info(
-        JSON.stringify({
-          event: "auth.email_verification.sent",
-          userId: user.id,
-        }),
-      );
     },
     sendOnSignIn: true,
   },

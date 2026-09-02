@@ -15,6 +15,7 @@ vi.mock("./lib/env", () => ({
     BETTER_AUTH_URL: "http://localhost:8000",
     FRONTEND_URL: "http://localhost:3000",
     RESEND_API_KEY: "re_test",
+    EMAIL_FROM: "Delok <noreply@test.delok.dev>",
     GOOGLE_CLIENT_ID: "x",
     GOOGLE_CLIENT_SECRET: "x",
     GITHUB_CLIENT_ID: "x",
