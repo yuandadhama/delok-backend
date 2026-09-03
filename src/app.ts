@@ -52,20 +52,19 @@ app.use((req, res, next) => {
 // CORS — explicit origin from env, never * with credentials
 app.use(
   cors({
-    origin: [env.FRONTEND_URL],
+    origin: env.FRONTEND_URL,
     methods: ["GET", "POST", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
     credentials: true,
   }),
 );
 
-app.use(express.json({ limit: "1mb" }));
-
 // auth route better auth setting
 app.use("/api/auth", authRateLimiter);
 app.use("/api/auth", authRoute);
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
+app.use(express.json({ limit: "1mb" }));
 // route for all modules
 app.use("/api/user", userRoute);
 
