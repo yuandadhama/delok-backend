@@ -1,5 +1,5 @@
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
-import { errorResponse } from "../../utils/api-response";
+import { errorResponse } from "../../utils/api-response.js";
 
 // Per API key + IP sliding window
 // Trust proxy is set so req.ip respects X-Forwarded-For

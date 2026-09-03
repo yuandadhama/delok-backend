@@ -1,10 +1,10 @@
 // /src/modules/organization/organization.authorization.ts
 
-import { AppError } from "../../utils/AppError";
+import { AppError } from "../../utils/AppError.js";
 import {
   findOrganizationBySlugForMember,
   findOwnerMembership,
-} from "./organization.repository";
+} from "./organization.repository.js";
 
 /**
  * Ensure current user is a member of organization.

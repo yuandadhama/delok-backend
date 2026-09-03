@@ -1,8 +1,8 @@
 // /src/modules/log-event/log-event.controller.ts
 
 import { Request, Response } from "express";
-import { getLogsByProjectIdService } from "./log-event.service";
-import { logEventQuerySchema } from "./log-event.validation";
+import { getLogsByProjectIdService } from "./log-event.service.js";
+import { logEventQuerySchema } from "./log-event.validation.js";
 
 /**
  * GET /api/projects/:projectId/logs

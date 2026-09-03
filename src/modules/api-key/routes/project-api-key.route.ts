@@ -1,14 +1,14 @@
 // /src/modules/api-key/routes/project-api-key.route.ts
 
 import express from "express";
-import { authMiddleware } from "../../../middlewares/auth.middleware";
-import { asyncHandler } from "../../../utils/async-handler";
+import { authMiddleware } from "../../../middlewares/auth.middleware.js";
+import { asyncHandler } from "../../../utils/async-handler.js";
 import {
   createApiKeyController,
   getApiKeysByProjectIdController,
-} from "../api-key.controller";
-import { validate } from "../../../middlewares/validate.middleware";
-import { ApiKeySchema } from "../api-key.validation";
+} from "../api-key.controller.js";
+import { validate } from "../../../middlewares/validate.middleware.js";
+import { ApiKeySchema } from "../api-key.validation.js";
 
 export const projectApiKeyRoute = express.Router({
   mergeParams: true,

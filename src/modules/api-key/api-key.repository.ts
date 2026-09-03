@@ -1,6 +1,6 @@
 // /src/modules/api-key/api-key.repository.ts
 
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../lib/prisma.js";
 
 /**
  * Create a new API key record.

@@ -1,17 +1,17 @@
 // /src/modules/project/route/organization-project.route.ts
 
 import express from "express";
-import { authMiddleware } from "../../../middlewares/auth.middleware";
-import { asyncHandler } from "../../../utils/async-handler";
+import { authMiddleware } from "../../../middlewares/auth.middleware.js";
+import { asyncHandler } from "../../../utils/async-handler.js";
 import {
   createProjectController,
   deleteProjectController,
   getAllProjectsController,
   getProjectByIdController,
   updateProjectController,
-} from "../project.controller";
-import { validate } from "../../../middlewares/validate.middleware";
-import { projectSchema } from "../project.validation";
+} from "../project.controller.js";
+import { validate } from "../../../middlewares/validate.middleware.js";
+import { projectSchema } from "../project.validation.js";
 
 export const organizationProjectRoute = express.Router({ mergeParams: true });
 

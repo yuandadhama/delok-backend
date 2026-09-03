@@ -23,7 +23,7 @@ vi.mock("./lib/env", () => ({
   },
 }));
 
-const { app } = await import("./app");
+const { app } = await import("./app.js");
 
 describe("health & readiness", () => {
   it("GET /health returns 200", async () => {

@@ -7,7 +7,7 @@ import {
   getAllProjectsService,
   getProjectByIdService,
   updateProjectService,
-} from "./project.service";
+} from "./project.service.js";
 
 /**
  * POST /api/organizations/:organizationSlug/projects

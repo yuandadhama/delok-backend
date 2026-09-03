@@ -1,7 +1,7 @@
 // src/middlewares/rate-limit/auth-rate-limit.middleware.ts
 
 import rateLimit from "express-rate-limit";
-import { errorResponse } from "../../utils/api-response";
+import { errorResponse } from "../../utils/api-response.js";
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

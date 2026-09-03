@@ -1,7 +1,7 @@
 // /src/modules/ingestion/ingestion.repository.ts
 
 import { JsonObject } from "@prisma/client/runtime/client";
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../lib/prisma.js";
 
 /**
  * Create log event record.

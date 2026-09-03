@@ -3,14 +3,14 @@
 import {
   ensureOrganizationMember,
   ensureOrganizationOwner,
-} from "../organization/organization.authorization";
+} from "../organization/organization.authorization.js";
 import {
   createProject,
   deleteProject,
   findAllProjects,
   updateProject,
-} from "./project.repository";
-import { ensureProjectInOrganization } from "./project.authorization";
+} from "./project.repository.js";
+import { ensureProjectInOrganization } from "./project.authorization.js";
 
 /**
  * Create new project inside organization.

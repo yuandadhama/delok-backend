@@ -1,7 +1,7 @@
 // /src/modules/auth/auth.service.ts
 
-import { findUserByEmail } from "./auth.repository";
-import { auth } from "../../lib/auth";
+import { findUserByEmail } from "./auth.repository.js";
+import { auth } from "../../lib/auth.js";
 
 export const resendVerificationEmailService = async (email: string) => {
   const user = await findUserByEmail(email);

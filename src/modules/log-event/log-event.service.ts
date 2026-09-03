@@ -1,8 +1,8 @@
 // /src/modules/log-event/log-event.service.ts
 
-import { ensureProjectMember } from "../project/project.authorization";
-import { countLogs, findLogsByProjectId } from "./log-event.repository";
-import { LogEventQuery } from "./log-event.validation";
+import { ensureProjectMember } from "../project/project.authorization.js";
+import { countLogs, findLogsByProjectId } from "./log-event.repository.js";
+import { LogEventQuery } from "./log-event.validation.js";
 
 /**
  * Get paginated logs for a project.

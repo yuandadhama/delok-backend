@@ -1,9 +1,9 @@
 // /src/modules/log-event/route/log-event.route.ts
 
 import express from "express";
-import { authMiddleware } from "../../../middlewares/auth.middleware";
-import { asyncHandler } from "../../../utils/async-handler";
-import { getLogsByProjectIdController } from "../log-event.controller";
+import { authMiddleware } from "../../../middlewares/auth.middleware.js";
+import { asyncHandler } from "../../../utils/async-handler.js";
+import { getLogsByProjectIdController } from "../log-event.controller.js";
 
 export const projectLogEventRoute = express.Router({
   mergeParams: true,

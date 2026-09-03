@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { createLogEventSchema } from "./ingestion.validation";
+import { createLogEventSchema } from "./ingestion.validation.js";
 
 describe("ingestion validation", () => {
   const base = {

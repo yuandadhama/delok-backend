@@ -2,12 +2,12 @@
 // Boundary: Auth/Business decides "an email needs to be sent",
 // this service decides how it is constructed and delivered.
 
-import { resend } from "../../lib/resend";
-import { env } from "../../lib/env";
+import { resend } from "../../lib/resend.js";
+import { env } from "../../lib/env.js";
 import {
   verificationEmailTemplate,
   passwordResetEmailTemplate,
-} from "./email.templates";
+} from "./email.templates.js";
 
 type SendEmailParams = {
   to: string;

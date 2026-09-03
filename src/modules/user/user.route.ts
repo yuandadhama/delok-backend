@@ -1,10 +1,10 @@
 // /src/modules/user/user.route.ts
 
 import express from "express";
-import { meController } from "./user.controller";
+import { meController } from "./user.controller.js";
 
-import { asyncHandler } from "../../utils/async-handler";
-import { authMiddleware } from "../../middlewares/auth.middleware";
+import { asyncHandler } from "../../utils/async-handler.js";
+import { authMiddleware } from "../../middlewares/auth.middleware.js";
 
 export const userRoute = express.Router();
 

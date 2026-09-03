@@ -1,16 +1,16 @@
 // /src/modules/api-key/api-key.service.ts
 
 import { randomBytes } from "crypto";
-import { AppError } from "../../utils/AppError";
-import { ensureProjectManagementAccess } from "../project/project.authorization";
+import { AppError } from "../../utils/AppError.js";
+import { ensureProjectManagementAccess } from "../project/project.authorization.js";
 import {
   createApiKey,
   findApiKeyById,
   findApiKeysByProjectId,
   revokeApiKey,
   updateApiKeyName,
-} from "./api-key.repository";
-import { sha256 } from "../../utils/hash";
+} from "./api-key.repository.js";
+import { sha256 } from "../../utils/hash.js";
 
 /**
  * Create a new API key for a project.

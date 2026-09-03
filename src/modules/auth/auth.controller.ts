@@ -1,7 +1,7 @@
 // /src/modules/auth/auth.controller.ts
 
 import { Request, Response } from "express";
-import { resendVerificationEmailService } from "./auth.service";
+import { resendVerificationEmailService } from "./auth.service.js";
 
 export const resendVerificationEmailController = async (
   req: Request,

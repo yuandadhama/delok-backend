@@ -1,17 +1,17 @@
 // /src/modules/organization/organization.service.ts
 
-import { generateSlug } from "../../utils/generate-slug";
+import { generateSlug } from "../../utils/generate-slug.js";
 import {
   ensureOrganizationMember,
   ensureOrganizationOwner,
-} from "./organization.authorization";
+} from "./organization.authorization.js";
 
 import {
   createOrganization,
   deleteOrganization,
   findAllOrganizations,
   updateOrganization,
-} from "./organization.repository";
+} from "./organization.repository.js";
 
 /**
  * Create new organization.

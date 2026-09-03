@@ -1,11 +1,11 @@
 // /src/modules/ingestion/ingestion.route.ts
 
 import express from "express";
-import { asyncHandler } from "../../utils/async-handler";
-import { createLogEventController } from "./ingestion.controller";
-import { validate } from "../../middlewares/validate.middleware";
-import { createLogEventSchema } from "./ingestion.validation";
-import { ingestionRateLimiter } from "../../middlewares/rate-limit/ingestion-rate-limit.middleware";
+import { asyncHandler } from "../../utils/async-handler.js";
+import { createLogEventController } from "./ingestion.controller.js";
+import { validate } from "../../middlewares/validate.middleware.js";
+import { createLogEventSchema } from "./ingestion.validation.js";
+import { ingestionRateLimiter } from "../../middlewares/rate-limit/ingestion-rate-limit.middleware.js";
 
 export const ingestionRoute = express.Router();
 

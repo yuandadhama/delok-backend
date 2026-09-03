@@ -10,7 +10,7 @@ vi.mock("../../modules/project/project.authorization", () => ({
 
 import { WebSocket } from "ws";
 import { EventEmitter } from "node:events";
-import { subscriptions, socketUsers, websocket } from "./websocket";
+import { subscriptions, socketUsers, websocket } from "./websocket.js";
 
 function makeSocket(userId?: string) {
   const s: any = new EventEmitter();
@@ -76,7 +76,7 @@ describe("websocket authorization", () => {
   it("enforces max subscriptions", async () => {
     const sock = makeSocket("user1");
     // Mock ensureProjectMember to allow any proj for this test
-    const mod = await import("../../modules/project/project.authorization");
+    const mod = await import("../../modules/project/project.authorization.js");
     (mod.ensureProjectMember as any).mockResolvedValue({ id: "x" });
 
     for (let i = 0; i < 10; i++) {

@@ -1,6 +1,6 @@
 // /src/modules/auth/auth.repository.ts
 
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../lib/prisma.js";
 
 export const findUserByEmail = (email: string) => {
   return prisma.user.findUnique({

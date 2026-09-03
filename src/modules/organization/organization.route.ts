@@ -2,8 +2,8 @@
 
 import express from "express";
 
-import { asyncHandler } from "../../utils/async-handler";
-import { authMiddleware } from "../../middlewares/auth.middleware";
+import { asyncHandler } from "../../utils/async-handler.js";
+import { authMiddleware } from "../../middlewares/auth.middleware.js";
 
 import {
   createOrganizationController,
@@ -11,9 +11,9 @@ import {
   getAllOrganizationController,
   getOrganizationBySlugController,
   updateOrganizationController,
-} from "./organization.controller";
-import { validate } from "../../middlewares/validate.middleware";
-import { organizationSchema } from "./organization.validation";
+} from "./organization.controller.js";
+import { validate } from "../../middlewares/validate.middleware.js";
+import { organizationSchema } from "./organization.validation.js";
 
 export const organizationRoute = express.Router();
 

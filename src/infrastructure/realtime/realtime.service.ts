@@ -2,8 +2,8 @@
 
 import { WebSocket } from "ws";
 
-import { RealtimeEvent } from "./event.types";
-import { subscriptions } from "./websocket";
+import { RealtimeEvent } from "./event.types.js";
+import { subscriptions } from "./websocket.js";
 
 /**
  * Broadcasts realtime events to subscribed clients.

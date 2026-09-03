@@ -1,12 +1,12 @@
 // /src/modules/project/project.authorization.ts
 
-import { AppError } from "../../utils/AppError";
-import { ensureOrganizationOwner } from "../organization/organization.authorization";
+import { AppError } from "../../utils/AppError.js";
+import { ensureOrganizationOwner } from "../organization/organization.authorization.js";
 import {
   findProjectById,
   findProjectByIdAndOrganization,
   findProjectByIdForMember,
-} from "./project.repository";
+} from "./project.repository.js";
 
 /**
  * Ensure current user can access project.

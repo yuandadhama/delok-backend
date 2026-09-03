@@ -2,9 +2,9 @@
 
 import { Router } from "express";
 import { z } from "zod";
-import { resendVerificationEmailController } from "./auth.controller";
-import { asyncHandler } from "../../utils/async-handler";
-import { validate } from "../../middlewares/validate.middleware";
+import { resendVerificationEmailController } from "./auth.controller.js";
+import { asyncHandler } from "../../utils/async-handler.js";
+import { validate } from "../../middlewares/validate.middleware.js";
 
 const resendVerificationSchema = z.object({
   email: z.email().max(254),

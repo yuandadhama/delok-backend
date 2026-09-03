@@ -8,7 +8,7 @@ import {
   getAllOrganizationService,
   getOrganizationBySlugService,
   updateOrganizationService,
-} from "./organization.service";
+} from "./organization.service.js";
 
 /**
  * POST /api/organization

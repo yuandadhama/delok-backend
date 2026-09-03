@@ -15,7 +15,7 @@ vi.mock("../../lib/env", () => ({
   },
 }));
 
-import { sendVerificationEmail, sendPasswordResetEmail, _internal } from "./email.service";
+import { sendVerificationEmail, sendPasswordResetEmail, _internal } from "./email.service.js";
 
 describe("email service", () => {
   beforeEach(() => {

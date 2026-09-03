@@ -5,20 +5,20 @@ import cors from "cors";
 import helmet from "helmet";
 import { randomUUID } from "node:crypto";
 
-import { env } from "./lib/env";
-import { prisma } from "./lib/prisma";
-import { userRoute } from "./modules/user/user.route";
-import { errorMiddleware } from "./middlewares/error.middleware";
+import { env } from "./lib/env.js";
+import { prisma } from "./lib/prisma.js";
+import { userRoute } from "./modules/user/user.route.js";
+import { errorMiddleware } from "./middlewares/error.middleware.js";
 import { toNodeHandler } from "better-auth/node";
-import { auth } from "./lib/auth";
-import { organizationRoute } from "./modules/organization/organization.route";
-import { ingestionRoute } from "./modules/ingestion/ingestion.route";
-import { projectLogEventRoute } from "./modules/log-event/routes/project-log-event.route";
-import { organizationProjectRoute } from "./modules/project/routes/organization-project.route";
-import { apiKeyRoute } from "./modules/api-key/routes/api-key.route";
-import { projectApiKeyRoute } from "./modules/api-key/routes/project-api-key.route";
-import { authRateLimiter } from "./middlewares/rate-limit/auth-rate-limit.middleware";
-import { authRoute } from "./modules/auth/auth.route";
+import { auth } from "./lib/auth.js";
+import { organizationRoute } from "./modules/organization/organization.route.js";
+import { ingestionRoute } from "./modules/ingestion/ingestion.route.js";
+import { projectLogEventRoute } from "./modules/log-event/routes/project-log-event.route.js";
+import { organizationProjectRoute } from "./modules/project/routes/organization-project.route.js";
+import { apiKeyRoute } from "./modules/api-key/routes/api-key.route.js";
+import { projectApiKeyRoute } from "./modules/api-key/routes/project-api-key.route.js";
+import { authRateLimiter } from "./middlewares/rate-limit/auth-rate-limit.middleware.js";
+import { authRoute } from "./modules/auth/auth.route.js";
 
 export const app = express();
 

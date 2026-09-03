@@ -1,8 +1,8 @@
 // /src/middlewares/error.middleware.ts
 
 import { NextFunction, Request, Response } from "express";
-import { AppError } from "../utils/AppError";
-import { Prisma } from "../generated/prisma/client";
+import { AppError } from "../utils/AppError.js";
+import { Prisma } from "../generated/prisma/client.js";
 
 const getErrorInfo = (error: unknown) => {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {

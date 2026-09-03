@@ -1,8 +1,8 @@
 // /src/modules/log-event/log-event.repository.ts
 
-import { prisma } from "../../lib/prisma";
-import { buildLogFilter } from "./log-event.query";
-import { LogFilter, LogQueryOptions } from "./log-event.type";
+import { prisma } from "../../lib/prisma.js";
+import { buildLogFilter } from "./log-event.query.js";
+import { LogFilter, LogQueryOptions } from "./log-event.type.js";
 
 /**
  * Find all log events belonging to a project.

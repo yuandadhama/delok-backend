@@ -2,14 +2,14 @@
 
 import { APIError, betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "./prisma";
+import { prisma } from "./prisma.js";
 import { createAuthMiddleware } from "better-auth/api";
-import { passwordSchema } from "../features/auth/auth.schema";
-import { env } from "./env";
+import { passwordSchema } from "../features/auth/auth.schema.js";
+import { env } from "./env.js";
 import {
   sendVerificationEmail as sendVerificationEmailService,
   sendPasswordResetEmail as sendPasswordResetEmailService,
-} from "../infrastructure/email/email.service";
+} from "../infrastructure/email/email.service.js";
 
 export const auth = betterAuth({
   baseURL: env.BETTER_AUTH_URL,

@@ -13,9 +13,9 @@ vi.mock("../../infrastructure/realtime/realtime.service", () => ({
   realtime: { emit: vi.fn() },
 }));
 
-import { findApiKeyByKeyHash } from "./ingestion.repository";
-import { createLogEventService } from "./ingestion.service";
-import { sha256 } from "../../utils/hash";
+import { findApiKeyByKeyHash } from "./ingestion.repository.js";
+import { createLogEventService } from "./ingestion.service.js";
+import { sha256 } from "../../utils/hash.js";
 
 describe("ingestion service", () => {
   beforeEach(() => vi.resetAllMocks());
@@ -38,7 +38,7 @@ describe("ingestion service", () => {
   });
 
   it("updates lastUsedAt only when stale", async () => {
-    const { updateApiKeyLastUsedAt } = await import("./ingestion.repository");
+    const { updateApiKeyLastUsedAt } = await import("./ingestion.repository.js");
     (findApiKeyByKeyHash as any).mockResolvedValue({ id: "k1", projectId: "proj1", revokedAt: null, lastUsedAt: new Date() });
     await createLogEventService("dlok_y".padEnd(20, "a"), "production", "error", "e", new Date(), undefined, undefined);
     // lastUsedAt is now, so no update (within 5min)

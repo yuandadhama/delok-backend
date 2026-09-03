@@ -1,17 +1,17 @@
 // /src/modules/ingestion/ingestion.service.ts
 
 import { JsonObject } from "@prisma/client/runtime/client";
-import { AppError } from "../../utils/AppError";
+import { AppError } from "../../utils/AppError.js";
 
 import {
   countProjectLogs,
   createLogEvent,
   findApiKeyByKeyHash,
   updateApiKeyLastUsedAt,
-} from "./ingestion.repository";
+} from "./ingestion.repository.js";
 
-import { sha256 } from "../../utils/hash";
-import { realtime } from "../../infrastructure/realtime/realtime.service";
+import { sha256 } from "../../utils/hash.js";
+import { realtime } from "../../infrastructure/realtime/realtime.service.js";
 
 /**
  * Create new log event.

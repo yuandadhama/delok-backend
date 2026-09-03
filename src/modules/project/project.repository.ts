@@ -1,6 +1,6 @@
 // /src/modules/project/project.repository.ts
 
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../lib/prisma.js";
 
 /**
  * Create project and generate its first API key.

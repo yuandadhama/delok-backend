@@ -1,12 +1,12 @@
 // /src/server.ts
 
 import { createServer } from "node:http";
-import { env } from "./lib/env";
-import { prisma } from "./lib/prisma";
+import { env } from "./lib/env.js";
+import { prisma } from "./lib/prisma.js";
 
-import { app } from "./app";
-import { websocket, socketUsers } from "./infrastructure/realtime/websocket";
-import { auth } from "./lib/auth";
+import { app } from "./app.js";
+import { websocket, socketUsers } from "./infrastructure/realtime/websocket.js";
+import { auth } from "./lib/auth.js";
 import { fromNodeHeaders } from "better-auth/node";
 
 export const server = createServer(app);

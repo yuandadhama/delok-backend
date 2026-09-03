@@ -1,7 +1,7 @@
 // /src/modules/organization/organization.repository.ts
 
-import { OrganizationRole } from "../../generated/prisma/client";
-import { prisma } from "../../lib/prisma";
+import { OrganizationRole } from "../../generated/prisma/client.js";
+import { prisma } from "../../lib/prisma.js";
 
 /**
  * Create new organization and automatically

@@ -7,8 +7,8 @@ vi.mock("../lib/auth", () => ({
   },
 }));
 
-import { authMiddleware } from "./auth.middleware";
-import { auth } from "../lib/auth";
+import { authMiddleware } from "./auth.middleware.js";
+import { auth } from "../lib/auth.js";
 
 describe("authMiddleware", () => {
   beforeEach(() => vi.resetAllMocks());

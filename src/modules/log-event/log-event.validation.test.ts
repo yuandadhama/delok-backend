@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { logEventQuerySchema } from "./log-event.validation";
+import { logEventQuerySchema } from "./log-event.validation.js";
 
 describe("log-event query validation", () => {
   it("defaults page/limit", () => {

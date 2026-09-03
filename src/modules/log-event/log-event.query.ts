@@ -1,5 +1,5 @@
-import { Prisma } from "../../generated/prisma/client";
-import { LogFilter } from "./log-event.type";
+import { Prisma } from "../../generated/prisma/client.js";
+import { LogFilter } from "./log-event.type.js";
 
 export const buildLogFilter = (
   filter: LogFilter,

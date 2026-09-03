@@ -1,8 +1,8 @@
 // /src/modules/ingestion/ingestion.controller.ts
 
 import { Request, Response } from "express";
-import { AppError } from "../../utils/AppError";
-import { createLogEventService } from "./ingestion.service";
+import { AppError } from "../../utils/AppError.js";
+import { createLogEventService } from "./ingestion.service.js";
 
 /**
  * POST /api/ingestion

@@ -2,8 +2,8 @@
 
 import { WebSocket, WebSocketServer } from "ws";
 import { z } from "zod";
-import { RealtimeEvent } from "./event.types";
-import { ensureProjectMember } from "../../modules/project/project.authorization";
+import { RealtimeEvent } from "./event.types.js";
+import { ensureProjectMember } from "../../modules/project/project.authorization.js";
 
 /**
  * Singleton WebSocket server instance.

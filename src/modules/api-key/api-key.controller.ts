@@ -6,7 +6,7 @@ import {
   getApiKeysByProjectIdService,
   revokeApiKeyService,
   updateApiKeyNameService,
-} from "./api-key.service";
+} from "./api-key.service.js";
 import id from "zod/v4/locales/id.cjs";
 
 export const createApiKeyController = async (req: Request, res: Response) => {

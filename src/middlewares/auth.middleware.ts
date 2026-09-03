@@ -1,9 +1,9 @@
 // /src/middlewares/auth.middleware.ts
 
 import { NextFunction, Request, Response } from "express";
-import { auth } from "../lib/auth";
+import { auth } from "../lib/auth.js";
 import { fromNodeHeaders } from "better-auth/node";
-import { AppError } from "../utils/AppError";
+import { AppError } from "../utils/AppError.js";
 
 export const authMiddleware = async (
   req: Request,

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   verificationEmailTemplate,
   passwordResetEmailTemplate,
-} from "./email.templates";
+} from "./email.templates.js";
 
 describe("email templates", () => {
   it("verification template escapes html in name and url", () => {
