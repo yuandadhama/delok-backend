@@ -2,7 +2,7 @@
 
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../utils/AppError";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../generated/prisma/client";
 
 const getErrorInfo = (error: unknown) => {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -107,3 +107,4 @@ export const errorMiddleware = async (
     timestamp: new Date().toISOString(),
   });
 };
+
